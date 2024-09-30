@@ -28,14 +28,13 @@ type Lista[T any] interface {
 
 	//Devuelve una instancia de IteradorLista
 	Iterador() IteradorLista[T]
-
 }
 
 type IteradorLista[T any] interface {
 
 	//VerActual devuelve el elemento actual de la iteracion. Si se la invoca sobre un iterador que ya haya iterado todos los elementos, entra en panico con un mensaje "El iterador termino de iterar"
 	VerActual() T
-	
+
 	//HaySiguiente devulve si hay algun elemento para observar en la posicion
 	HaySiguiente() bool
 
@@ -47,5 +46,6 @@ type IteradorLista[T any] interface {
 
 	//Borrar borra el elemento de la posicion actual. Si se la invoca sobre un iterador que ya haya iterado todos los elementos, entra en panico con un mensaje "El iterador termino de iterar"
 	Borrar() T
-
 }
+
+//cambio para probar de hacer push
