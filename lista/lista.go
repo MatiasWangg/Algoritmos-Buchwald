@@ -20,7 +20,7 @@ type Lista[T any] interface {
 	//VerUltimo devuelve el ultimo elemento de la lista. Si la lista esta vacia, entra en panico con un mensaje "La lista esta vacia"
 	VerUltimo() T
 
-	//Largoo devulve la cantidad de elementos de la lista
+	//Largo devulve la cantidad de elementos de la lista
 	Largo() int
 
 	//Iterar dicha funcion se aplica a cada elementos de la lista, hasta que se termine o la funcion devuelva false
@@ -47,5 +47,3 @@ type IteradorLista[T any] interface {
 	//Borrar borra el elemento de la posicion actual. Si se la invoca sobre un iterador que ya haya iterado todos los elementos, entra en panico con un mensaje "El iterador termino de iterar"
 	Borrar() T
 }
-
-//cambio para probar de hacer push
