@@ -74,3 +74,16 @@ func (lista *lista_enlazada[T]) VerUltimo() T {
 func (lista *lista_enlazada[T]) Largo() int {
 	return lista.largo
 }
+
+func (lista *lista_enlazada[T]) Iterar(visitar func(T) bool) {
+	actual := lista.primero
+	for actual != nil && visitar(actual.dato) {
+		actual = actual.sig
+	}
+}
+
+type iterListaEnlazda[T any] struct {
+	actual *nodoLista[T]
+	anterior *nodoLista[T]
+	lista *lista_enlazada[T]
+}
