@@ -1,12 +1,29 @@
 package lista
 
-type lista_enlazada[T any] struct {
-	primero *nodoLista[T]
-	ultimo  *nodoLista[T]
-}
 type nodoLista[T any] struct {
 	dato T
 	sig  *nodoLista[T]
+}
+
+func nodoCrear[T any](dato T) *nodoLista[T] {
+	nodoLista := new(nodoLista[T])
+	
+	nodoLista.dato = dato
+	nodoLista.sig = nil
+	
+	return nodoLista
+}
+
+type lista_enlazada[T any] struct {
+	primero *nodoLista[T]
+	ultimo  *nodoLista[T]
+	largo int
+}
+
+func CrearListaEnlazada[T any]() Lista[T] {
+	lista := new(lista_enlazada[T])
+
+	return lista
 }
 
 func (lista *lista_enlazada[T]) EstaVacia() bool {
@@ -18,7 +35,7 @@ func (lista *lista_enlazada[T]) InsertarPrimero(dato T) {
 
 	nodo.sig = lista.primero
 	lista.primero = nodo
-
+	lista.largo++
 }
 
 func (lista *lista_enlazada[T]) InsertarUltimo(dato T) {
@@ -26,6 +43,7 @@ func (lista *lista_enlazada[T]) InsertarUltimo(dato T) {
 
 	lista.ultimo.sig = nodo
 	lista.ultimo = nodo
+	lista.largo++
 }
 
 func (lista *lista_enlazada[T]) BorrarPrimero() T {
@@ -35,6 +53,7 @@ func (lista *lista_enlazada[T]) BorrarPrimero() T {
 	}
 	borrado := lista.primero
 	lista.primero = lista.primero.sig
+	lista.largo--
 	return borrado.dato
 }
 
@@ -52,11 +71,6 @@ func (lista *lista_enlazada[T]) VerUltimo() T {
 	return lista.ultimo.dato
 }
 
-func nodoCrear[T any](dato T) *nodoLista[T] {
-	nodoLista := new(nodoLista[T])
-
-	nodoLista.dato = dato
-	nodoLista.sig = nil
-
-	return nodoLista
+func (lista *lista_enlazada[T]) Largo() int {
+	return lista.largo
 }
