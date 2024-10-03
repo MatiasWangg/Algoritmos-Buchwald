@@ -36,16 +36,23 @@ func (lista *lista_enlazada[T]) EstaVacia() bool {
 
 func (lista *lista_enlazada[T]) InsertarPrimero(dato T) {
 	nodo := nodoCrear(dato)
-
-	nodo.sig = lista.primero
-	lista.primero = nodo
+	if lista.EstaVacia() {
+		lista.primero = nodo
+		lista.ultimo = nodo
+	} else {
+		nodo.sig = lista.primero
+		lista.primero = nodo
+	}
 	lista.largo++
 }
 
 func (lista *lista_enlazada[T]) InsertarUltimo(dato T) {
 	nodo := nodoCrear(dato)
-
-	lista.ultimo.sig = nodo
+	if lista.EstaVacia() {
+		lista.primero = nodo
+	} else {
+		lista.ultimo.sig = nodo
+	}
 	lista.ultimo = nodo
 	lista.largo++
 }
