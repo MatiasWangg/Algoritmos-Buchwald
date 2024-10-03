@@ -41,7 +41,7 @@ type IteradorLista[T any] interface {
 	//Siguiente avanza una posicion en la iteracion. Si se la invoca sobre un iterador que ya haya iterado todos los elementos, entra en panico con un mensaje "El iterador termino de iterar"
 	Siguiente()
 
-	//Insertar insertaa un elemento en la posicion actual
+	//Insertar inserta un elemento en la posicion actual
 	Insertar(T)
 
 	//Borrar borra el elemento de la posicion actual. Si se la invoca sobre un iterador que ya haya iterado todos los elementos, entra en panico con un mensaje "El iterador termino de iterar"
