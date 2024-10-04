@@ -86,6 +86,8 @@ func (lista *lista_enlazada[T]) Largo() int {
 	return lista.largo
 }
 
+// Iterador Interno
+
 func (lista *lista_enlazada[T]) Iterar(visitar func(T) bool) {
 	actual := lista.primero
 	for actual != nil && visitar(actual.dato) {
@@ -93,7 +95,7 @@ func (lista *lista_enlazada[T]) Iterar(visitar func(T) bool) {
 	}
 }
 
-//Estructura y Creador de Iterador
+//Estructura y Creador del Iterador externo
 
 func (lista *lista_enlazada[T]) Iterador() IteradorLista[T] {
 	iter := new(iterListaEnlazda[T])
@@ -117,7 +119,7 @@ func (iter *iterListaEnlazda[T]) VerActual() T {
 }
 
 func (iter *iterListaEnlazda[T]) HaySiguiente() bool {
-	return iter.actual.sig != nil || iter.actual != nil
+	return iter.actual != nil
 }
 
 func (iter *iterListaEnlazda[T]) Siguiente() {
@@ -131,10 +133,9 @@ func (iter *iterListaEnlazda[T]) Siguiente() {
 func (iter *iterListaEnlazda[T]) Insertar(elem T) {
 	nodo := nodoCrear(elem)
 
-	if iter.actual == iter.lista.ultimo {
+	if iter.actual == nil {
 		iter.lista.ultimo = nodo
 	}
-
 	nodo.sig = iter.actual
 
 	if iter.actual == iter.lista.primero {
@@ -142,6 +143,7 @@ func (iter *iterListaEnlazda[T]) Insertar(elem T) {
 	} else {
 		iter.anterior.sig = nodo
 	}
+
 	iter.actual = nodo
 	iter.lista.largo++
 }
@@ -150,9 +152,21 @@ func (iter *iterListaEnlazda[T]) Borrar() T {
 	if !iter.HaySiguiente() {
 		panic("El iterador termino de iterar")
 	}
+
 	borrado := iter.actual.dato
+
+	if iter.actual == iter.lista.ultimo {
+		iter.lista.ultimo = iter.anterior
+	}
+
+	if iter.actual == iter.lista.primero {
+		iter.lista.primero = iter.actual.sig
+	} else {
+		iter.anterior.sig = iter.actual
+	}
+
 	iter.actual = iter.actual.sig
-	iter.anterior.sig = iter.actual
 	iter.lista.largo--
+
 	return borrado
 }
