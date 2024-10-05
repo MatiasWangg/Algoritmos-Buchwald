@@ -162,7 +162,7 @@ func (iter *iterListaEnlazda[T]) Borrar() T {
 	if iter.actual == iter.lista.primero {
 		iter.lista.primero = iter.actual.sig
 	} else {
-		iter.anterior.sig = iter.actual
+		iter.anterior.sig = iter.actual.sig
 	}
 
 	iter.actual = iter.actual.sig
