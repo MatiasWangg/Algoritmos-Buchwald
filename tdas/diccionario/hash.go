@@ -31,7 +31,11 @@ func hashingFuncion[K comparable](clave K, tam int) int {
 }
 
 func CrearHash[K comparable, V any]() Diccionario[K, V] {
-	//
+    hash := new(hashAbierto[K, V]) 
+    hash.tabla = make([]TDALista.Lista[parClaveValor[K, V]], TAM_INICIAL) 
+    for i := 0; i < TAM_INICIAL; i++ {
+        hash.tabla[i] = TDALista.CrearListaEnlazada[parClaveValor[K, V]]() 
+    hash.tam = TAM_INICIAL
+    return hash
+	}
 }
-
-
