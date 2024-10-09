@@ -39,3 +39,37 @@ func CrearHash[K comparable, V any]() Diccionario[K, V] {
     return hash
 	}
 }
+
+func (h *hashAbierto[K, V]) redimensionar(nuevoTam int) {
+	nuevaTabla := make([]TDALista.Lista[parClaveValor[K, V]], nuevoTam)
+	for i := 0; i < nuevoTam; i++ {
+		nuevaTabla[i] = TDALista.CrearListaEnlazada[parClaveValor[K, V]]()
+	}
+
+	for i := 0; i < h.tam; i++ {
+		lista := h.tabla[i]
+		iter := lista.Iterador()
+		for iter.HaySiguiente() {
+			claveValor := iter.VerActual()
+			indice := hashingFuncion(claveValor.clave, nuevoTam)
+			nuevaTabla[indice].InsertarUltimo(parClaveValor[K, V]{claveValor.clave, claveValor.valor})
+			iter.Siguiente()
+		}
+	}
+	h.tabla = nuevaTabla
+	h.tam = nuevoTam
+}
+
+func (h *hashAbierto[K, V]) buscar(clave K) TDALista.IteradorLista[parClaveValor[K, V]] {
+	indice := hashingFuncion(clave, h.tam)
+	listaActual := h.tabla[indice]
+	iter := listaActual.Iterador()
+	for iter.HaySiguiente() {
+		claveValorActual := iter.VerActual()
+		if clave == claveValorActual.clave {
+			return iter
+		}
+		iter.Siguiente()
+	}
+	return nil
+}
