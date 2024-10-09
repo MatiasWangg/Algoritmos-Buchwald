@@ -37,12 +37,11 @@ func (lista *lista_enlazada[T]) EstaVacia() bool {
 func (lista *lista_enlazada[T]) InsertarPrimero(dato T) {
 	nodo := nodoCrear(dato)
 	if lista.EstaVacia() {
-		lista.primero = nodo
 		lista.ultimo = nodo
-	} else {
-		nodo.sig = lista.primero
-		lista.primero = nodo
 	}
+	nodo.sig = lista.primero
+	lista.primero = nodo
+
 	lista.largo++
 }
 
@@ -65,6 +64,9 @@ func (lista *lista_enlazada[T]) BorrarPrimero() T {
 	borrado := lista.primero
 	lista.primero = lista.primero.sig
 	lista.largo--
+	if lista.largo == 0 {
+		lista.ultimo = nil
+	}
 	return borrado.dato
 }
 
@@ -162,7 +164,7 @@ func (iter *iterListaEnlazda[T]) Borrar() T {
 	if iter.actual == iter.lista.primero {
 		iter.lista.primero = iter.actual.sig
 	} else {
-		iter.anterior.sig = iter.actual.sig
+		iter.anterior.sig = iter.actual
 	}
 
 	iter.actual = iter.actual.sig
