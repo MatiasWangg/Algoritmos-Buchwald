@@ -129,3 +129,28 @@ func (h *hashAbierto[K, V]) Borrar(clave K) V {
 	h.cantidad--
 	return valor
 }
+
+func (h *hashAbierto[K, V]) Iterar(visitar func(clave K, dato V) bool) {
+	for i := 0; i < h.tam; i++ {
+		lista := h.tabla[i]
+
+		if lista.EstaVacia() {
+			continue
+		}
+		iter := lista.Iterador()
+
+		for iter.HaySiguiente() {
+			claveValor := iter.VerActual()
+			if !visitar(claveValor.clave, claveValor.valor) {
+				return
+			}
+			iter.Siguiente()
+		}
+	}
+}
+
+type iteradorDiccionario[K comparable, V any] struct {
+	hash *hashAbierto[K, V]
+	indice int
+	iter TDALista.IteradorLista[parClaveValor[K, V]]
+}
