@@ -73,3 +73,59 @@ func (h *hashAbierto[K, V]) buscar(clave K) TDALista.IteradorLista[parClaveValor
 	}
 	return nil
 }
+
+func (h *hashAbierto[K, V]) Guardar(clave K, dato V) {
+	factorCarga := h.cantidad / h.tam
+	if factorCarga > 3 {
+		h.redimensionar(h.tam * 2)
+	}
+	indice := hashingFuncion(clave, h.tam)
+	iter := h.buscar(clave)
+
+	if iter == nil {
+        h.tabla[indice].InsertarUltimo(parClaveValor[K, V]{clave: clave, valor: dato})
+        h.cantidad++ 
+    } else {
+        guardado := iter.VerActual()
+        guardado.valor = dato
+    }
+}
+
+func (h *hashAbierto[K, V]) Cantidad() int {
+	return h.cantidad
+}
+
+func (h *hashAbierto[K, V]) Pertenece(clave K) bool {
+	iter := h.buscar(clave)
+	return iter != nil
+} 
+
+func (h *hashAbierto[K, V]) Obtener(clave K) V {
+	iter := h.buscar(clave)
+
+	if iter == nil {
+		panic("La clave no pertenece al diccionario")
+	}
+
+	claveValor := iter.VerActual()
+	return claveValor.valor
+}
+
+func (h *hashAbierto[K, V]) Borrar(clave K) V {
+	factorCarga := h.cantidad / h.tam
+	if factorCarga < 2 && h.tam > TAM_INICIAL {
+		h.redimensionar(h.tam / 2)
+	}
+
+	iter := h.buscar(clave)
+
+	if iter == nil {
+		panic("La clave no pertecene al diccionario")
+	}
+
+	claveValor := iter.VerActual()
+	valor := claveValor.valor
+	iter.Borrar()
+	h.cantidad--
+	return valor
+}
