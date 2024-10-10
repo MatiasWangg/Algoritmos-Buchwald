@@ -204,25 +204,3 @@ func TestIterExt_Volumen(t *testing.T) {
 		require.EqualValues(t, j, iter.Borrar(), "El valor borrado debe ser j")
 	}
 }
-
-func TestIterExt_BorrarEnElMedio(t *testing.T) {
-	lista := TDALista.CrearListaEnlazada[int]()
-	for i := range 10 {
-		lista.InsertarUltimo(i)
-	}
-	iter := lista.Iterador()
-	iter.Siguiente()
-	iter.Siguiente()
-	iter.Siguiente()
-	iter.Siguiente()
-	require.EqualValues(t, 4, iter.Borrar())
-	for iter.HaySiguiente() {
-		iter.Siguiente()
-	}
-	j := 0
-	for !lista.EstaVacia() {
-
-		require.EqualValues(t, j, lista.BorrarPrimero())
-		j++
-	}
-}
