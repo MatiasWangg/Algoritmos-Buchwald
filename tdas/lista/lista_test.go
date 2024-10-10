@@ -66,11 +66,24 @@ func TestLista_Vaciada(t *testing.T) {
 	lista := TDALista.CrearListaEnlazada[int]()
 	lista.InsertarPrimero(1)
 	lista.BorrarPrimero()
-	require.PanicsWithValue(t, "La lista esta vacia", func() { lista.VerPrimero() }, "VerPrimero deberia causar panico en una lista vacia")
+
+	require.True(t, lista.EstaVacia(), "La lista deberia estar vacia despues de borrar el primer elemento")
+	
+	require.PanicsWithValue(t, "La lista esta vacia", func() { lista.VerPrimero() }, "VerPrimero debería causar panico en una lista vacia")
+	require.PanicsWithValue(t, "La lista esta vacia", func() { lista.VerUltimo() }, "VerUltimo debería causar panico en una lista vacia")
+
 	lista.InsertarPrimero(2)
 	require.EqualValues(t, 2, lista.VerPrimero(), "El primer elemento deberia ser el 2")
-	require.False(t, lista.EstaVacia(), "La lista no deberia estar vacia")
+	require.EqualValues(t, 2, lista.VerUltimo(), "El ultimo elemento deberia ser el 2")
+	require.False(t, lista.EstaVacia(), "La lista no debería estar vacía")
+
+	lista.BorrarPrimero()
+	require.True(t, lista.EstaVacia(), "La lista debería estar vacía después de borrar el unico elemento")
+	
+	require.PanicsWithValue(t, "La lista esta vacia", func() { lista.VerPrimero() }, "VerPrimero deberia causar panico en una lista vacia")
+	require.PanicsWithValue(t, "La lista esta vacia", func() { lista.VerUltimo() }, "VerUltimo deberia causar panico en una lista vacia")
 }
+
 
 //pruebas del iterador Interno
 
