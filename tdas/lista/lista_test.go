@@ -72,6 +72,43 @@ func TestLista_Vaciada(t *testing.T) {
 	require.False(t, lista.EstaVacia(), "La lista no deberia estar vacia")
 }
 
+//pruebas del iterador Interno
+
+func TestIterInt_RecorridoCompleto(t *testing.T) {
+	lista := TDALista.CrearListaEnlazada[int]()
+	lista.InsertarUltimo(20)
+	lista.InsertarUltimo(40)
+	lista.InsertarUltimo(60)
+	lista.InsertarUltimo(80)
+	suma := 0
+	lista.Iterar(func(num int) bool {
+		suma += num
+		return true
+	})
+	require.EqualValues(t, 200, suma, "la suma de los elementos debe ser 200")
+}
+
+func TestIterInt_RecorridoCortado(t *testing.T) {
+	lista := TDALista.CrearListaEnlazada[string]()
+	lista.InsertarUltimo("A")
+	lista.InsertarUltimo("B")
+	lista.InsertarUltimo("C")
+	lista.InsertarUltimo("D")
+	lista.InsertarUltimo("E")
+	letras := []string{}
+	lista.Iterar(func(letra string) bool {
+		if letra == "C" {
+			return false
+		}
+		letras = append(letras, letra)
+		return true
+	})
+	require.EqualValues(t, 2, len(letras))
+	require.EqualValues(t, "A", letras[0])
+	require.EqualValues(t, "B", letras[1])
+
+}
+
 // Pruebas del iterador Externo
 
 func TestIterExt_InsertarPrimero(t *testing.T) {
@@ -165,5 +202,27 @@ func TestIterExt_Volumen(t *testing.T) {
 	for j := range tam {
 		require.EqualValues(t, j, iter.VerActual(), "El valor actual de la iteracion deberia ser j")
 		require.EqualValues(t, j, iter.Borrar(), "El valor borrado debe ser j")
+	}
+}
+
+func TestIterExt_BorrarEnElMedio(t *testing.T) {
+	lista := TDALista.CrearListaEnlazada[int]()
+	for i := range 10 {
+		lista.InsertarUltimo(i)
+	}
+	iter := lista.Iterador()
+	iter.Siguiente()
+	iter.Siguiente()
+	iter.Siguiente()
+	iter.Siguiente()
+	require.EqualValues(t, 4, iter.Borrar())
+	for iter.HaySiguiente() {
+		iter.Siguiente()
+	}
+	j := 0
+	for !lista.EstaVacia() {
+
+		require.EqualValues(t, j, lista.BorrarPrimero())
+		j++
 	}
 }
