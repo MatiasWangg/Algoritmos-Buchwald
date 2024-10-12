@@ -159,44 +159,62 @@ type iteradorDiccionario[K comparable, V any] struct {
 	cant   int
 }
 
+
 func (h *hashAbierto[K, V]) Iterador() IterDiccionario[K, V] {
 	diter := new(iteradorDiccionario[K, V])
 	diter.hash = h
 	diter.indice = 0
-	for h.tabla[diter.indice].Largo() == 0 {
-		if diter.indice == h.tam-1 {
-			break
-		}
+	diter.cant = 0
+
+	if h.Cantidad() == 0 {
+		diter.indice = h.tam 
+		return diter
+	}
+
+	for diter.indice < h.tam && h.tabla[diter.indice].Largo() == 0 {
 		diter.indice++
 	}
-	diter.iter = h.tabla[diter.indice].Iterador()
+
+	if diter.indice < h.tam {
+		diter.iter = h.tabla[diter.indice].Iterador()
+	}
+
 	return diter
 }
 
 func (diter *iteradorDiccionario[K, V]) HaySiguiente() bool {
-	return diter.indice != diter.hash.tam
+	if diter.indice >= diter.hash.tam {
+		return false
+	}
+
+	if diter.iter.HaySiguiente() {
+		return true
+	}
+
+	return diter.avanzarAProximaListaConElementos()
 }
+
 func (diter *iteradorDiccionario[K, V]) VerActual() (K, V) {
 	if !diter.HaySiguiente() {
 		panic("El iterador termino de iterar")
 	}
 	return diter.iter.VerActual().clave, diter.iter.VerActual().valor
-
 }
+
 func (diter *iteradorDiccionario[K, V]) Siguiente() {
 	if !diter.HaySiguiente() {
 		panic("El iterador termino de iterar")
 	}
-	if !diter.iter.HaySiguiente() {
-		diter.indice++
-		for diter.hash.tabla[diter.indice].Largo() == 0 {
-			if !diter.HaySiguiente() {
-				panic("El iterador termino de iterar")
-			}
-			diter.indice++
-		}
-		diter.iter = diter.hash.tabla[diter.indice].Iterador()
-	}
 	diter.iter.Siguiente()
 	diter.cant++
+}
+
+func (diter *iteradorDiccionario[K, V]) avanzarAProximaListaConElementos() bool {
+	for diter.indice++; diter.indice < diter.hash.tam; diter.indice++ {
+		if diter.hash.tabla[diter.indice].Largo() > 0 {
+			diter.iter = diter.hash.tabla[diter.indice].Iterador()
+			return true
+		}
+	}
+	return false
 }
