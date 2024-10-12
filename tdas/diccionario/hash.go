@@ -87,8 +87,8 @@ func (h *hashAbierto[K, V]) Guardar(clave K, dato V) {
 		h.tabla[indice].InsertarUltimo(parClaveValor[K, V]{clave: clave, valor: dato})
 		h.cantidad++
 	} else {
-		guardado := iter.VerActual()
-		guardado.valor = dato
+		iter.Borrar()
+		h.tabla[indice].InsertarUltimo(parClaveValor[K, V]{clave: clave, valor: dato})
 	}
 }
 
@@ -121,7 +121,7 @@ func (h *hashAbierto[K, V]) Borrar(clave K) V {
 	iter := h.buscar(clave)
 
 	if iter == nil {
-		panic("La clave no pertecene al diccionario")
+		panic("La clave no pertenece al diccionario")
 	}
 
 	claveValor := iter.VerActual()
