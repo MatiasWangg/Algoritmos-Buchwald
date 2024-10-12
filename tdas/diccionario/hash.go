@@ -4,6 +4,7 @@ import (
 	"fmt"
 	TDALista "tdas/lista"
 )
+
 const TAM_INICIAL = 5
 
 type parClaveValor[K comparable, V any] struct {
@@ -11,8 +12,8 @@ type parClaveValor[K comparable, V any] struct {
 	valor V
 }
 type hashAbierto[K comparable, V any] struct {
-	tabla []TDALista.Lista[parClaveValor[K, V]]
-	tam int
+	tabla    []TDALista.Lista[parClaveValor[K, V]]
+	tam      int
 	cantidad int
 }
 
@@ -20,7 +21,7 @@ func convertirABytes[K comparable](clave K) []byte {
 	return []byte(fmt.Sprintf("%v", clave))
 }
 
-//Suma los valores de los bytes y calcula el módulo del tamaño de la tabla
+// Suma los valores de los bytes y calcula el módulo del tamaño de la tabla
 func hashingFuncion[K comparable](clave K, tam int) int {
 	bytes := convertirABytes(clave)
 	suma := 0
@@ -31,13 +32,13 @@ func hashingFuncion[K comparable](clave K, tam int) int {
 }
 
 func CrearHash[K comparable, V any]() Diccionario[K, V] {
-    hash := new(hashAbierto[K, V]) 
-    hash.tabla = make([]TDALista.Lista[parClaveValor[K, V]], TAM_INICIAL) 
-    for i := 0; i < TAM_INICIAL; i++ {
-        hash.tabla[i] = TDALista.CrearListaEnlazada[parClaveValor[K, V]]() 
-    hash.tam = TAM_INICIAL
-    return hash
+	hash := new(hashAbierto[K, V])
+	hash.tabla = make([]TDALista.Lista[parClaveValor[K, V]], TAM_INICIAL)
+	for i := 0; i < TAM_INICIAL; i++ {
+		hash.tabla[i] = TDALista.CrearListaEnlazada[parClaveValor[K, V]]()
+		hash.tam = TAM_INICIAL
 	}
+	return hash
 }
 
 func (h *hashAbierto[K, V]) redimensionar(nuevoTam int) {
@@ -83,12 +84,12 @@ func (h *hashAbierto[K, V]) Guardar(clave K, dato V) {
 	iter := h.buscar(clave)
 
 	if iter == nil {
-        h.tabla[indice].InsertarUltimo(parClaveValor[K, V]{clave: clave, valor: dato})
-        h.cantidad++ 
-    } else {
-        guardado := iter.VerActual()
-        guardado.valor = dato
-    }
+		h.tabla[indice].InsertarUltimo(parClaveValor[K, V]{clave: clave, valor: dato})
+		h.cantidad++
+	} else {
+		guardado := iter.VerActual()
+		guardado.valor = dato
+	}
 }
 
 func (h *hashAbierto[K, V]) Cantidad() int {
@@ -98,7 +99,7 @@ func (h *hashAbierto[K, V]) Cantidad() int {
 func (h *hashAbierto[K, V]) Pertenece(clave K) bool {
 	iter := h.buscar(clave)
 	return iter != nil
-} 
+}
 
 func (h *hashAbierto[K, V]) Obtener(clave K) V {
 	iter := h.buscar(clave)
@@ -149,8 +150,53 @@ func (h *hashAbierto[K, V]) Iterar(visitar func(clave K, dato V) bool) {
 	}
 }
 
+// Estructura y Primitivas del iterador Externo
+
 type iteradorDiccionario[K comparable, V any] struct {
-	hash *hashAbierto[K, V]
+	hash   *hashAbierto[K, V]
 	indice int
-	iter TDALista.IteradorLista[parClaveValor[K, V]]
+	iter   TDALista.IteradorLista[parClaveValor[K, V]]
+	cant   int
+}
+
+func (h *hashAbierto[K, V]) Iterador() IterDiccionario[K, V] {
+	diter := new(iteradorDiccionario[K, V])
+	diter.hash = h
+	diter.indice = 0
+	for h.tabla[diter.indice].Largo() == 0 {
+		if diter.indice == h.tam-1 {
+			break
+		}
+		diter.indice++
+	}
+	diter.iter = h.tabla[diter.indice].Iterador()
+	return diter
+}
+
+func (diter *iteradorDiccionario[K, V]) HaySiguiente() bool {
+	return diter.indice != diter.hash.tam
+}
+func (diter *iteradorDiccionario[K, V]) VerActual() (K, V) {
+	if !diter.HaySiguiente() {
+		panic("El iterador termino de iterar")
+	}
+	return diter.iter.VerActual().clave, diter.iter.VerActual().valor
+
+}
+func (diter *iteradorDiccionario[K, V]) Siguiente() {
+	if !diter.HaySiguiente() {
+		panic("El iterador termino de iterar")
+	}
+	if !diter.iter.HaySiguiente() {
+		diter.indice++
+		for diter.hash.tabla[diter.indice].Largo() == 0 {
+			if !diter.HaySiguiente() {
+				panic("El iterador termino de iterar")
+			}
+			diter.indice++
+		}
+		diter.iter = diter.hash.tabla[diter.indice].Iterador()
+	}
+	diter.iter.Siguiente()
+	diter.cant++
 }
