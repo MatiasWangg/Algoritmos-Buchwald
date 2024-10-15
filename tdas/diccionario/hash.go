@@ -36,8 +36,8 @@ func CrearHash[K comparable, V any]() Diccionario[K, V] {
 	hash.tabla = make([]TDALista.Lista[parClaveValor[K, V]], TAM_INICIAL)
 	for i := 0; i < TAM_INICIAL; i++ {
 		hash.tabla[i] = TDALista.CrearListaEnlazada[parClaveValor[K, V]]()
-		hash.tam = TAM_INICIAL
 	}
+	hash.tam = TAM_INICIAL
 	return hash
 }
 
@@ -159,7 +159,6 @@ type iteradorDiccionario[K comparable, V any] struct {
 	cant   int
 }
 
-
 func (h *hashAbierto[K, V]) Iterador() IterDiccionario[K, V] {
 	diter := new(iteradorDiccionario[K, V])
 	diter.hash = h
@@ -167,7 +166,7 @@ func (h *hashAbierto[K, V]) Iterador() IterDiccionario[K, V] {
 	diter.cant = 0
 
 	if h.Cantidad() == 0 {
-		diter.indice = h.tam 
+		diter.indice = h.tam
 		return diter
 	}
 
