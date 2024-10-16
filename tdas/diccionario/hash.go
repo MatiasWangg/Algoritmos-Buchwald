@@ -21,14 +21,16 @@ func convertirABytes[K comparable](clave K) []byte {
 	return []byte(fmt.Sprintf("%v", clave))
 }
 
-// Suma los valores de los bytes y calcula el módulo del tamaño de la tabla
+// La idea sacada de: https://encode.su/threads/62-Knuth-s-Multiplicative-Hashing
+// Y tambien https://stackoverflow.com/questions/11871245/knuth-multiplicative-hash
 func hashingFuncion[K comparable](clave K, tam int) int {
+	const primeMultiplier = 2654435761
 	bytes := convertirABytes(clave)
-	suma := 0
+	var hash uint64
 	for _, b := range bytes {
-		suma += int(b)
+		hash = hash*primeMultiplier + uint64(b)
 	}
-	return suma % tam
+	return int(hash % uint64(tam))
 }
 
 func CrearHash[K comparable, V any]() Diccionario[K, V] {
