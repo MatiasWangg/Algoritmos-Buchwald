@@ -164,21 +164,10 @@ type iteradorDiccionario[K comparable, V any] struct {
 func (h *hashAbierto[K, V]) Iterador() IterDiccionario[K, V] {
 	diter := new(iteradorDiccionario[K, V])
 	diter.hash = h
-	diter.indice = 0
+	diter.indice = -1
 	diter.cant = 0
 
-	if h.Cantidad() == 0 {
-		diter.indice = h.tam
-		return diter
-	}
-
-	for diter.indice < h.tam && h.tabla[diter.indice].Largo() == 0 {
-		diter.indice++
-	}
-
-	if diter.indice < h.tam {
-		diter.iter = h.tabla[diter.indice].Iterador()
-	}
+	diter.avanzarAProximaListaConElementos()
 
 	return diter
 }
@@ -207,6 +196,11 @@ func (diter *iteradorDiccionario[K, V]) Siguiente() {
 		panic("El iterador termino de iterar")
 	}
 	diter.iter.Siguiente()
+
+	if !diter.iter.HaySiguiente() {
+		diter.avanzarAProximaListaConElementos()
+	}
+
 	diter.cant++
 }
 
