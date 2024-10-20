@@ -63,75 +63,82 @@ func (h *hashAbierto[K, V]) redimensionar(nuevoTam int) {
 	h.tam = nuevoTam
 }
 
-func (h *hashAbierto[K, V]) buscar(clave K) TDALista.IteradorLista[parClaveValor[K, V]] {
-	indice := hashingFuncion(clave, h.tam)
-	listaActual := h.tabla[indice]
-	iter := listaActual.Iterador()
-	for iter.HaySiguiente() {
-		claveValorActual := iter.VerActual()
-		if clave == claveValorActual.clave {
-			return iter
-		}
-		iter.Siguiente()
-	}
-	return nil
+func (h *hashAbierto[K, V]) buscar(clave K) (int, TDALista.IteradorLista[parClaveValor[K, V]]) {
+    indice := hashingFuncion(clave, h.tam)
+    listaActual := h.tabla[indice]
+    iter := listaActual.Iterador()
+
+    for iter.HaySiguiente() {
+        claveValorActual := iter.VerActual()
+        if clave == claveValorActual.clave {
+            return indice, iter
+        }
+        iter.Siguiente()
+    }
+
+    return indice, iter
 }
+
 
 func (h *hashAbierto[K, V]) Guardar(clave K, dato V) {
-	factorCarga := h.cantidad / h.tam
-	if factorCarga > 3 {
-		h.redimensionar(h.tam * 2)
-	}
-	indice := hashingFuncion(clave, h.tam)
-	iter := h.buscar(clave)
+    factorCarga := float64(h.cantidad) / float64(h.tam)
+    if factorCarga > 3 {
+        h.redimensionar(h.tam * 2)
+    }
 
-	if iter == nil {
-		h.tabla[indice].InsertarUltimo(parClaveValor[K, V]{clave: clave, valor: dato})
-		h.cantidad++
-	} else {
-		iter.Borrar()
-		h.tabla[indice].InsertarUltimo(parClaveValor[K, V]{clave: clave, valor: dato})
-	}
+    indice, iter := h.buscar(clave)
+
+    if !iter.HaySiguiente() {
+        h.tabla[indice].InsertarUltimo(parClaveValor[K, V]{clave: clave, valor: dato})
+        h.cantidad++
+    } else {
+        iter.Borrar()
+        h.tabla[indice].InsertarUltimo(parClaveValor[K, V]{clave: clave, valor: dato})
+    }
 }
+
 
 func (h *hashAbierto[K, V]) Cantidad() int {
 	return h.cantidad
 }
 
 func (h *hashAbierto[K, V]) Pertenece(clave K) bool {
-	iter := h.buscar(clave)
-	return iter != nil
+    _, iter := h.buscar(clave)
+    return iter.HaySiguiente()
 }
+
 
 func (h *hashAbierto[K, V]) Obtener(clave K) V {
-	iter := h.buscar(clave)
+    _, iter := h.buscar(clave)
 
-	if iter == nil {
-		panic("La clave no pertenece al diccionario")
-	}
+    if !iter.HaySiguiente() {
+        panic("La clave no pertenece al diccionario")
+    }
 
-	claveValor := iter.VerActual()
-	return claveValor.valor
+    claveValor := iter.VerActual()
+    return claveValor.valor
 }
+
 
 func (h *hashAbierto[K, V]) Borrar(clave K) V {
-	factorCarga := h.cantidad / h.tam
-	if factorCarga < 2 && h.tam > TAM_INICIAL {
-		h.redimensionar(h.tam / 2)
-	}
+    factorCarga := h.cantidad / h.tam
+    if factorCarga < 2 && h.tam > TAM_INICIAL {
+        h.redimensionar(h.tam / 2)
+    }
 
-	iter := h.buscar(clave)
+    _, iter := h.buscar(clave)
 
-	if iter == nil {
-		panic("La clave no pertenece al diccionario")
-	}
+    if !iter.HaySiguiente() {
+        panic("La clave no pertenece al diccionario")
+    }
 
-	claveValor := iter.VerActual()
-	valor := claveValor.valor
-	iter.Borrar()
-	h.cantidad--
-	return valor
+    claveValor := iter.VerActual()
+    valor := claveValor.valor
+    iter.Borrar()
+    h.cantidad--
+    return valor
 }
+
 
 func (h *hashAbierto[K, V]) Iterar(visitar func(clave K, dato V) bool) {
 	for i := 0; i < h.tam; i++ {
