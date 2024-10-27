@@ -21,14 +21,16 @@ func convertirABytes[K comparable](clave K) []byte {
 	return []byte(fmt.Sprintf("%v", clave))
 }
 
-// Suma los valores de los bytes y calcula el módulo del tamaño de la tabla
+// La idea sacada de: https://encode.su/threads/62-Knuth-s-Multiplicative-Hashing
+// Y tambien https://stackoverflow.com/questions/11871245/knuth-multiplicative-hash
 func hashingFuncion[K comparable](clave K, tam int) int {
+	const primeMultiplier = 2654435761
 	bytes := convertirABytes(clave)
-	suma := 0
+	var hash uint64
 	for _, b := range bytes {
-		suma += int(b)
+		hash = hash*primeMultiplier + uint64(b)
 	}
-	return suma % tam
+	return int(hash % uint64(tam))
 }
 
 func CrearHash[K comparable, V any]() Diccionario[K, V] {
@@ -61,29 +63,31 @@ func (h *hashAbierto[K, V]) redimensionar(nuevoTam int) {
 	h.tam = nuevoTam
 }
 
-func (h *hashAbierto[K, V]) buscar(clave K) TDALista.IteradorLista[parClaveValor[K, V]] {
+func (h *hashAbierto[K, V]) buscar(clave K) (int, TDALista.IteradorLista[parClaveValor[K, V]]) {
 	indice := hashingFuncion(clave, h.tam)
 	listaActual := h.tabla[indice]
 	iter := listaActual.Iterador()
+
 	for iter.HaySiguiente() {
 		claveValorActual := iter.VerActual()
 		if clave == claveValorActual.clave {
-			return iter
+			return indice, iter
 		}
 		iter.Siguiente()
 	}
-	return nil
+
+	return indice, iter
 }
 
 func (h *hashAbierto[K, V]) Guardar(clave K, dato V) {
-	factorCarga := h.cantidad / h.tam
+	factorCarga := float64(h.cantidad) / float64(h.tam)
 	if factorCarga > 3 {
 		h.redimensionar(h.tam * 2)
 	}
-	indice := hashingFuncion(clave, h.tam)
-	iter := h.buscar(clave)
 
-	if iter == nil {
+	indice, iter := h.buscar(clave)
+
+	if !iter.HaySiguiente() {
 		h.tabla[indice].InsertarUltimo(parClaveValor[K, V]{clave: clave, valor: dato})
 		h.cantidad++
 	} else {
@@ -97,14 +101,14 @@ func (h *hashAbierto[K, V]) Cantidad() int {
 }
 
 func (h *hashAbierto[K, V]) Pertenece(clave K) bool {
-	iter := h.buscar(clave)
-	return iter != nil
+	_, iter := h.buscar(clave)
+	return iter.HaySiguiente()
 }
 
 func (h *hashAbierto[K, V]) Obtener(clave K) V {
-	iter := h.buscar(clave)
+	_, iter := h.buscar(clave)
 
-	if iter == nil {
+	if !iter.HaySiguiente() {
 		panic("La clave no pertenece al diccionario")
 	}
 
@@ -118,9 +122,9 @@ func (h *hashAbierto[K, V]) Borrar(clave K) V {
 		h.redimensionar(h.tam / 2)
 	}
 
-	iter := h.buscar(clave)
+	_, iter := h.buscar(clave)
 
-	if iter == nil {
+	if !iter.HaySiguiente() {
 		panic("La clave no pertenece al diccionario")
 	}
 
@@ -138,14 +142,13 @@ func (h *hashAbierto[K, V]) Iterar(visitar func(clave K, dato V) bool) {
 		if lista.EstaVacia() {
 			continue
 		}
-		iter := lista.Iterador()
-
-		for iter.HaySiguiente() {
-			claveValor := iter.VerActual()
-			if !visitar(claveValor.clave, claveValor.valor) {
-				return
-			}
-			iter.Siguiente()
+		var ok bool
+		lista.Iterar(func(par parClaveValor[K, V]) bool {
+			ok = visitar(par.clave, par.valor)
+			return ok
+		})
+		if !ok {
+			return
 		}
 	}
 }
@@ -162,21 +165,10 @@ type iteradorDiccionario[K comparable, V any] struct {
 func (h *hashAbierto[K, V]) Iterador() IterDiccionario[K, V] {
 	diter := new(iteradorDiccionario[K, V])
 	diter.hash = h
-	diter.indice = 0
+	diter.indice = -1
 	diter.cant = 0
 
-	if h.Cantidad() == 0 {
-		diter.indice = h.tam
-		return diter
-	}
-
-	for diter.indice < h.tam && h.tabla[diter.indice].Largo() == 0 {
-		diter.indice++
-	}
-
-	if diter.indice < h.tam {
-		diter.iter = h.tabla[diter.indice].Iterador()
-	}
+	diter.avanzarAProximaListaConElementos()
 
 	return diter
 }
@@ -205,6 +197,11 @@ func (diter *iteradorDiccionario[K, V]) Siguiente() {
 		panic("El iterador termino de iterar")
 	}
 	diter.iter.Siguiente()
+
+	if !diter.iter.HaySiguiente() {
+		diter.avanzarAProximaListaConElementos()
+	}
+
 	diter.cant++
 }
 
