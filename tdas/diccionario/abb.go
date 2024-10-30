@@ -1,6 +1,8 @@
 package diccionario
 
-import p "tdas/pila"
+import (
+	p "tdas/pila"
+)
 
 type nodoAbb[K comparable, V any] struct {
 	izquierdo *nodoAbb[K, V]
@@ -146,6 +148,12 @@ func (a *abb[K, V]) encontrarMinimo(nodo *nodoAbb[K, V]) *nodoAbb[K, V] {
 
 //interno
 
+func (a *abb[K, V]) Iterar(visitar func(clave K, dato V) bool) {
+	if !a.raiz.iterar(visitar) {
+		return
+	}
+}
+
 func (nodo *nodoAbb[K, V]) iterar(visitar func(clave K, dato V) bool) bool {
 	if nodo == nil {
 		return true
@@ -164,70 +172,102 @@ func (nodo *nodoAbb[K, V]) iterar(visitar func(clave K, dato V) bool) bool {
 	return ok
 }
 
-func (a *abb[K, V]) Iterar(visitar func(clave K, dato V) bool) {
-	if !a.raiz.iterar(visitar) {
-		return
-	}
-}
-
 //Interno por rangos
 
-func (nodo *nodoAbb[K, V]) iterarRangos(desde *K, hasta *K, visitar func(clave K, dato V) bool) bool {
-	if nodo == nil {
-		return true
+func (nodo *nodoAbb[K, V]) iterarRangos(desde *K, hasta *K, cmp func(K, K) int, visitar func(clave K, dato V) bool) bool {
+
+	cmpDesde := 0
+	if desde != nil {
+		cmpDesde = cmp(nodo.clave, *desde)
 	}
-	if desde
+
+	cmpHasta := 0
+	if hasta != nil {
+		cmpHasta = cmp(nodo.clave, *hasta)
+	}
+
+	if cmpDesde >= 0 {
+		if !nodo.izquierdo.iterarRangos(desde, hasta, cmp, visitar) {
+			return false
+		}
+	}
+	if cmpDesde >= 0 && cmpHasta <= 0 {
+		if !visitar(nodo.clave, nodo.dato) {
+			return false
+		}
+	}
+
+	if cmpHasta <= 0 {
+		if !nodo.derecho.iterarRangos(desde, hasta, cmp, visitar) {
+			return false
+		}
+	}
+
+	return true
 }
 
 func (a *abb[K, V]) IterarRango(desde *K, hasta *K, visitar func(clave K, dato V) bool) {
+
 	if desde == nil && hasta == nil {
 		a.Iterar(visitar)
+		return
 	}
-	if desde == nil {
-		hijo, padre := a.buscar(*desde, a.raiz, nil)
-		if hijo != nil {
-			hijo.iterar(visitar)
-		}
-		if padre != nil {
-			padre.iterar(visitar)
-		}
+	if a.raiz == nil {
+		return
 	}
+	a.raiz.iterarRangos(desde, hasta, a.cmp, visitar)
 }
 
-//externo
+//externo---------------------------------------------------------------------------------------
 
 func (a *abb[K, V]) Iterador() IterDiccionario[K, V] {
-	abbiter := new(iteradorArbol[K, V])
-	abbiter.arbol = a
-	abbiter.pila = p.CrearPilaDinamica[*nodoAbb[K, V]]()
+	abbiter := a.iterador(nil, nil)
 	nodo := a.raiz
 	abbiter.apiloIzq(nodo)
 	return abbiter
 }
+func (a *abb[K, V]) iterador(desde *K, hasta *K) *iteradorArbol[K, V] {
+	abbiter := new(iteradorArbol[K, V])
+	abbiter.pila = p.CrearPilaDinamica[*nodoAbb[K, V]]()
+	abbiter.desde = desde
+	abbiter.hasta = hasta
+	return abbiter
+}
 
 type iteradorArbol[K comparable, V any] struct {
-	pila  p.Pila[*nodoAbb[K, V]]
 	arbol *abb[K, V]
+	pila  p.Pila[*nodoAbb[K, V]]
+	desde *K
+	hasta *K
 }
 
 func (abbiter *iteradorArbol[K, V]) HaySiguiente() bool {
-	return !abbiter.pila.EstaVacia()
+	cmpHasta := 0
+	if abbiter.hasta != nil {
+		actual := abbiter.pila.VerTope()
+		cmpHasta = abbiter.arbol.cmp(actual.clave, *abbiter.hasta)
+	}
+	return !abbiter.pila.EstaVacia() && cmpHasta <= 0
 }
 
 func (abbiter *iteradorArbol[K, V]) VerActual() (K, V) {
+	if !abbiter.HaySiguiente() {
+		panic("El iterador termino de iterar")
+	}
+
 	actual := abbiter.pila.VerTope()
 	return actual.clave, actual.dato
 }
 
 func (abbiter *iteradorArbol[K, V]) Siguiente() {
-	if abbiter.pila.EstaVacia() {
+	if !abbiter.HaySiguiente() {
 		panic("El iterador termino de iterar")
 	}
 	nodo := abbiter.pila.Desapilar()
 	if nodo.derecho != nil {
 		abbiter.pila.Apilar(nodo.derecho)
+		abbiter.apiloIzq(nodo.derecho)
 	}
-	abbiter.apiloIzq(nodo)
 }
 
 func (abbiter *iteradorArbol[K, V]) apiloIzq(nodo *nodoAbb[K, V]) {
@@ -242,5 +282,28 @@ func (a *abb[K, V]) IteradorRango(desde *K, hasta *K) IterDiccionario[K, V] {
 		return a.Iterador()
 	}
 
-}
+	abbiter := a.iterador(desde, hasta)
+	nodo := a.raiz
 
+	for nodo != nil {
+
+		cmpDesde := 0
+		if desde != nil {
+			cmpDesde = a.cmp(nodo.clave, *desde)
+		}
+		cmpHasta := 0
+		if hasta != nil {
+			cmpHasta = a.cmp(nodo.clave, *hasta)
+		}
+
+		if cmpDesde < 0 {
+			nodo = nodo.derecho
+		} else {
+			if cmpHasta <= 0 {
+				abbiter.pila.Apilar(nodo)
+			}
+			nodo = nodo.izquierdo
+		}
+	}
+	return abbiter
+}
