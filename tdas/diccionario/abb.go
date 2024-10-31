@@ -26,8 +26,7 @@ func crearNodoAbb[K comparable, V any]() *nodoAbb[K, V] {
 
 func CrearAbb[K comparable, V any](funcion_cmp func(K, K) int) DiccionarioOrdenado[K, V] {
 	abb := new(abb[K, V])
-	raiz := new(nodoAbb[K, V])
-	abb.raiz = raiz
+	abb.raiz = nil
 	abb.cmp = funcion_cmp
 	return abb
 }
