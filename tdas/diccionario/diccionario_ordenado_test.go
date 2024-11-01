@@ -73,7 +73,6 @@ func TestDiccionarioOrdenadoGuardar(t *testing.T) {
 	require.EqualValues(t, valores[2], dic.Obtener(claves[2]))
 }
 
-
 func TestReemplazoDatos(t *testing.T) {
 	t.Log("Guarda un par de claves, y luego vuelve a guardar, buscando que el dato se haya reemplazado")
 	clave := "Gato"
@@ -156,7 +155,7 @@ func TestReutlizarDeBorrados(t *testing.T) {
 
 func TestClavesNumericas(t *testing.T) {
 	t.Log("Valida que no solo funcione con strings")
-	dic := TDADiccionario.CrearAbb[int, string](CompararInts) 
+	dic := TDADiccionario.CrearAbb[int, string](CompararInts)
 	clave := 10
 	valor := "Gatito"
 
@@ -168,10 +167,9 @@ func TestClavesNumericas(t *testing.T) {
 	require.False(t, dic.Pertenece(clave))
 }
 
-
 func TestConClaveVacia(t *testing.T) {
 	t.Log("Guardamos una clave vacía (i.e. \"\") y deberia funcionar sin problemas")
-	dic := TDADiccionario.CrearAbb[string, string](CompararStrings) 
+	dic := TDADiccionario.CrearAbb[string, string](CompararStrings)
 	clave := ""
 	dic.Guardar(clave, clave)
 	require.True(t, dic.Pertenece(clave))
@@ -179,10 +177,9 @@ func TestConClaveVacia(t *testing.T) {
 	require.EqualValues(t, clave, dic.Obtener(clave))
 }
 
-
 func TestConValorNulo(t *testing.T) {
 	t.Log("Probamos que el valor puede ser nil sin problemas")
-	dic := TDADiccionario.CrearAbb[string, *int](CompararStrings) 
+	dic := TDADiccionario.CrearAbb[string, *int](CompararStrings)
 	clave := "Pez"
 	dic.Guardar(clave, nil)
 	require.True(t, dic.Pertenece(clave))
@@ -264,8 +261,8 @@ func TestIterarDiccionarioOrdenadoVacio(t *testing.T) {
 	dic := TDADiccionario.CrearAbb[string, int](CompararStrings)
 	iter := dic.Iterador()
 	require.False(t, iter.HaySiguiente())
-	require.PanicsWithValue(t, "El iterador terminó de iterar", func() { iter.VerActual() })
-	require.PanicsWithValue(t, "El iterador terminó de iterar", func() { iter.Siguiente() })
+	require.PanicsWithValue(t, "El iterador termino de iterar", func() { iter.VerActual() })
+	require.PanicsWithValue(t, "El iterador termino de iterar", func() { iter.Siguiente() })
 }
 
 func TestDiccionarioOrdenadoIterar(t *testing.T) {
@@ -305,8 +302,8 @@ func TestDiccionarioOrdenadoIterar(t *testing.T) {
 	iter.Siguiente()
 
 	require.False(t, iter.HaySiguiente())
-	require.PanicsWithValue(t, "El iterador terminó de iterar", func() { iter.VerActual() })
-	require.PanicsWithValue(t, "El iterador terminó de iterar", func() { iter.Siguiente() })
+	require.PanicsWithValue(t, "El iterador termino de iterar", func() { iter.VerActual() })
+	require.PanicsWithValue(t, "El iterador termino de iterar", func() { iter.Siguiente() })
 }
 
 func TestIterNoLlegaAlFinal(t *testing.T) {
@@ -336,14 +333,13 @@ func TestIterNoLlegaAlFinal(t *testing.T) {
 	require.NotEqualValues(t, -1, buscar2(tercero, claves))
 }
 
-
 func TestIterInternoClaves(t *testing.T) {
 	t.Log("Valida que todas las claves sean recorridas (y una única vez) con el iterador interno")
 	clave1 := "Gato"
 	clave2 := "Perro"
 	clave3 := "Vaca"
 	claves := []string{clave1, clave2, clave3}
-	dic := TDADiccionario.CrearAbb[string, *int](CompararStrings) 
+	dic := TDADiccionario.CrearAbb[string, *int](CompararStrings)
 	dic.Guardar(claves[0], nil)
 	dic.Guardar(claves[1], nil)
 	dic.Guardar(claves[2], nil)
@@ -366,7 +362,6 @@ func TestIterInternoClaves(t *testing.T) {
 	require.NotEqualValues(t, cs[0], cs[2])
 	require.NotEqualValues(t, cs[2], cs[1])
 }
-
 
 func TestIterInternoValores(t *testing.T) {
 	t.Log("Valida que los datos sean recorridas correctamente (y una única vez) con el iterador interno")
@@ -393,12 +388,11 @@ func TestIterInternoValores(t *testing.T) {
 	require.EqualValues(t, 720, factorial)
 }
 
-
 func TestVolumenIterCorte(t *testing.T) {
 	t.Log("Prueba de volumen de iterador interno, para validar que siempre que se indique que se corte" +
 		" la iteración con la función visitar, se corte")
 
-	dic := TDADiccionario.CrearAbb[int, int](CompararInts) 
+	dic := TDADiccionario.CrearAbb[int, int](CompararInts)
 
 	for i := 0; i < 10000; i++ {
 		dic.Guardar(i, i)
@@ -440,15 +434,20 @@ func TestIteradorRangoDesdeHasta(t *testing.T) {
 
 	require.True(t, iter.HaySiguiente())
 
-	claveEsperada := 2
+	clavesObtenidas := []int{}
+
 	for iter.HaySiguiente() {
 		clave, _ := iter.VerActual()
-		require.Equal(t, claveEsperada, clave)
+		clavesObtenidas = append(clavesObtenidas, clave)
 		iter.Siguiente()
-		claveEsperada++
-		if claveEsperada > rangoSuperior {
-			break
-		}
+	}
+
+	clavesEsperadas := []int{2, 3, 4}
+
+	require.Equal(t, len(clavesEsperadas), len(clavesObtenidas))
+
+	for i := range clavesEsperadas {
+		require.Equal(t, clavesEsperadas[i], clavesObtenidas[i])
 	}
 
 	require.False(t, iter.HaySiguiente())
@@ -469,12 +468,20 @@ func TestIteradorRangoDesde(t *testing.T) {
 
 	require.True(t, iter.HaySiguiente())
 
-	claveEsperada := 3
+	clavesObtenidas := []int{}
+
 	for iter.HaySiguiente() {
 		clave, _ := iter.VerActual()
-		require.Equal(t, claveEsperada, clave)
+		clavesObtenidas = append(clavesObtenidas, clave)
 		iter.Siguiente()
-		claveEsperada++
+	}
+
+	clavesEsperadas := []int{3, 4, 5}
+
+	require.Equal(t, len(clavesEsperadas), len(clavesObtenidas))
+
+	for i := range clavesEsperadas {
+		require.Equal(t, clavesEsperadas[i], clavesObtenidas[i])
 	}
 
 	require.False(t, iter.HaySiguiente())
@@ -495,15 +502,20 @@ func TestIteradorRangoHasta(t *testing.T) {
 
 	require.True(t, iter.HaySiguiente())
 
-	claveEsperada := 1
+	clavesObtenidas := []int{}
+
 	for iter.HaySiguiente() {
 		clave, _ := iter.VerActual()
-		require.Equal(t, claveEsperada, clave)
+		clavesObtenidas = append(clavesObtenidas, clave)
 		iter.Siguiente()
-		claveEsperada++
-		if claveEsperada > rangoSuperior {
-			break
-		}
+	}
+
+	clavesEsperadas := []int{1, 2, 3}
+
+	require.Equal(t, len(clavesEsperadas), len(clavesObtenidas))
+
+	for i := range clavesEsperadas {
+		require.Equal(t, clavesEsperadas[i], clavesObtenidas[i])
 	}
 
 	require.False(t, iter.HaySiguiente())
@@ -525,13 +537,18 @@ func TestIteradorInternoRangoDesdeHasta(t *testing.T) {
 
 	iter := dic.IteradorRango(&rangoInferior, &rangoSuperior)
 
-	i := 0
+	clavesObtenidas := []int{}
 
 	for iter.HaySiguiente() {
 		clave, _ := iter.VerActual()
-		require.Equal(t, elementosEnRango[i], clave)
+		clavesObtenidas = append(clavesObtenidas, clave)
 		iter.Siguiente()
-		i++
+	}
+
+	require.Equal(t, len(elementosEnRango), len(clavesObtenidas))
+
+	for i := range elementosEnRango {
+		require.Equal(t, elementosEnRango[i], clavesObtenidas[i])
 	}
 
 	require.False(t, iter.HaySiguiente())
@@ -554,4 +571,3 @@ func CompararInts(a, b int) int {
 	}
 	return 0
 }
-

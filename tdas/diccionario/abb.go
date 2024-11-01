@@ -221,15 +221,18 @@ func (a *abb[K, V]) IterarRango(desde *K, hasta *K, visitar func(clave K, dato V
 
 func (a *abb[K, V]) Iterador() IterDiccionario[K, V] {
 	abbiter := a.iterador(nil, nil)
-	nodo := a.raiz
-	abbiter.apiloIzq(nodo)
+	if a.raiz != nil {
+		abbiter.apiloIzq(a.raiz)
+	}
 	return abbiter
 }
+
 func (a *abb[K, V]) iterador(desde *K, hasta *K) *iteradorArbol[K, V] {
 	abbiter := new(iteradorArbol[K, V])
 	abbiter.pila = p.CrearPilaDinamica[*nodoAbb[K, V]]()
 	abbiter.desde = desde
 	abbiter.hasta = hasta
+	abbiter.arbol = a
 	return abbiter
 }
 
@@ -241,12 +244,16 @@ type iteradorArbol[K comparable, V any] struct {
 }
 
 func (abbiter *iteradorArbol[K, V]) HaySiguiente() bool {
-	cmpHasta := 0
+	if abbiter.pila.EstaVacia() {
+		return false
+	}
 	if abbiter.hasta != nil {
 		actual := abbiter.pila.VerTope()
-		cmpHasta = abbiter.arbol.cmp(actual.clave, *abbiter.hasta)
+		if abbiter.arbol.cmp(actual.clave, *abbiter.hasta) > 0 {
+			return false
+		}
 	}
-	return !abbiter.pila.EstaVacia() && cmpHasta <= 0
+	return true
 }
 
 func (abbiter *iteradorArbol[K, V]) VerActual() (K, V) {
@@ -264,15 +271,18 @@ func (abbiter *iteradorArbol[K, V]) Siguiente() {
 	}
 	nodo := abbiter.pila.Desapilar()
 	if nodo.derecho != nil {
-		abbiter.pila.Apilar(nodo.derecho)
 		abbiter.apiloIzq(nodo.derecho)
 	}
 }
 
 func (abbiter *iteradorArbol[K, V]) apiloIzq(nodo *nodoAbb[K, V]) {
-	for nodo.izquierdo != nil {
-		abbiter.pila.Apilar(nodo.izquierdo)
-		nodo = nodo.izquierdo
+	for nodo != nil {
+		if abbiter.desde != nil && abbiter.arbol.cmp(nodo.clave, *abbiter.desde) < 0 {
+			nodo = nodo.derecho
+		} else {
+			abbiter.pila.Apilar(nodo)
+			nodo = nodo.izquierdo
+		}
 	}
 }
 
