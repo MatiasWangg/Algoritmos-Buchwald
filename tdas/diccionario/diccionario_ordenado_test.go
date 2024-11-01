@@ -2,9 +2,10 @@ package diccionario_test
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/require"
 	TDADiccionario "tdas/diccionario"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 var TAMS_VOLUMEN2 = []int{12500, 25000, 50000, 100000, 200000, 400000}
@@ -198,6 +199,18 @@ func buscar2(clave string, claves []string) int {
 	return -1
 }
 
+func insertarNoOrdenado(dic TDADiccionario.Diccionario[string, int], claves []string, valores []int, inicio, fin int) {
+	if inicio > fin {
+		return
+	}
+	medio := (inicio + fin) / 2
+
+	dic.Guardar(claves[medio], valores[medio])
+
+	insertarNoOrdenado(dic, claves, valores, inicio, medio-1)
+	insertarNoOrdenado(dic, claves, valores, medio+1, fin)
+}
+
 func ejecutarPruebaVolumen2(b *testing.B, n int) {
 	dic := TDADiccionario.CrearAbb[string, int](CompararStrings)
 
@@ -207,8 +220,8 @@ func ejecutarPruebaVolumen2(b *testing.B, n int) {
 	for i := 0; i < n; i++ {
 		valores[i] = i
 		claves[i] = fmt.Sprintf("%08d", i)
-		dic.Guardar(claves[i], valores[i])
 	}
+	insertarNoOrdenado(dic, claves, valores, 0, n-1)
 
 	require.EqualValues(b, n, dic.Cantidad(), "La cantidad de elementos es incorrecta")
 
