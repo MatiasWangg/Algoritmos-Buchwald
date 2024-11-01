@@ -20,16 +20,39 @@ func CrearHeap[T any](funcion_cmp func(T, T) int) ColaPrioridad[T] {
 	return heap
 }
 
-//func CrearHeapArr[T any](arreglo []T, funcion_cmp func(T, T) int) ColaPrioridad[T]
+
+func (heap *heap[T]) redimensionar(nuevoTam int) {
+	nuevoArreglo := make([]T, nuevoTam) 
+	copy(nuevoArreglo, heap.arreglo)
+	heap.arreglo = nuevoArreglo 
+}
+
+func CrearHeapArr[T any](arreglo []T, funcion_cmp func(T, T) int) ColaPrioridad[T] {
+    heap := new(heap[T])
+    heap.cmp = funcion_cmp
+    heap.cantidad = len(arreglo)
+    heap.arreglo = make([]T, heap.cantidad) 
+
+    copy(heap.arreglo, arreglo)
+
+    for i := heap.cantidad/2 - 1; i >= 0; i-- {
+        heap.Heapify(i)
+    }
+
+    return heap
+}
 
 func (heap *heap[T]) EstaVacia() bool {
 	return heap.cantidad == 0
 }
 
 func (heap *heap[T]) Encolar(elem T) {
-	heap.arreglo[heap.cantidad] = elem
-	heap.upheap(heap.cantidad)
-	heap.cantidad++
+	if heap.cantidad == len(heap.arreglo) { 
+		heap.redimensionar(2 * len(heap.arreglo)) 
+	}
+	heap.arreglo[heap.cantidad] = elem 
+	heap.upheap(heap.cantidad)         
+	heap.cantidad++                 
 }
 
 func (heap *heap[T]) VerMax() T {
@@ -46,6 +69,11 @@ func (heap *heap[T]) Desencolar() T {
 	eliminado := heap.arreglo[0]
 	heap.arreglo[0], heap.arreglo[heap.cantidad-1] = heap.arreglo[heap.cantidad-1], heap.arreglo[0]
 	heap.cantidad--
+
+	if heap.cantidad > 0 && heap.cantidad == len(heap.arreglo)/4 {
+		heap.redimensionar(len(heap.arreglo) / 2)
+	}
+
 	heap.downheap(0)
 
 	return eliminado
@@ -99,4 +127,31 @@ func (heap *heap[T]) hijoMaximo(i, j int) int {
 	} else {
 		return i
 	}
+}
+
+func (heap *heap[T]) Heapify(i int) {
+    hijoIzquierdo := hijoIzq(i)
+    hijoDerecho := hijoDer(i)
+    mayor := i
+
+    if hijoIzquierdo < heap.cantidad && heap.cmp(heap.arreglo[hijoIzquierdo], heap.arreglo[mayor]) > 0 {
+        mayor = hijoIzquierdo
+    }
+
+    if hijoDerecho < heap.cantidad && heap.cmp(heap.arreglo[hijoDerecho], heap.arreglo[mayor]) > 0 {
+        mayor = hijoDerecho
+    }
+
+    if mayor != i {
+        heap.arreglo[i], heap.arreglo[mayor] = heap.arreglo[mayor], heap.arreglo[i]
+        heap.Heapify(mayor)
+    }
+}
+
+func HeapSort[T any](elementos []T, funcion_cmp func(T, T) int) {
+    heap := CrearHeapArr(elementos, funcion_cmp)
+
+    for i := len(elementos) - 1; i >= 0; i-- {
+        elementos[i] = heap.Desencolar()
+    }
 }
