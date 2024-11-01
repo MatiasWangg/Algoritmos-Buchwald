@@ -198,50 +198,6 @@ func buscar2(clave string, claves []string) int {
 	return -1
 }
 
-func ejecutarPruebaVolumen2(b *testing.B, n int) {
-	dic := TDADiccionario.CrearAbb[string, int](CompararStrings)
-
-	claves := make([]string, n)
-	valores := make([]int, n)
-
-	for i := 0; i < n; i++ {
-		valores[i] = i
-		claves[i] = fmt.Sprintf("%08d", i)
-		dic.Guardar(claves[i], valores[i])
-	}
-
-	require.EqualValues(b, n, dic.Cantidad(), "La cantidad de elementos es incorrecta")
-
-	ok := true
-	for i := 0; i < n; i++ {
-		ok = dic.Pertenece(claves[i])
-		if !ok {
-			break
-		}
-		ok = dic.Obtener(claves[i]) == valores[i]
-		if !ok {
-			break
-		}
-	}
-
-	require.True(b, ok, "Pertenece y Obtener con muchos elementos no funciona correctamente")
-	require.EqualValues(b, n, dic.Cantidad(), "La cantidad de elementos es incorrecta")
-
-	for i := 0; i < n; i++ {
-		ok = dic.Borrar(claves[i]) == valores[i]
-		if !ok {
-			break
-		}
-		ok = !dic.Pertenece(claves[i])
-		if !ok {
-			break
-		}
-	}
-
-	require.True(b, ok, "Borrar muchos elementos no funciona correctamente")
-	require.EqualValues(b, 0, dic.Cantidad())
-}
-
 func BenchmarkDiccionarioOrdenado(b *testing.B) {
 	b.Log("Prueba de stress del Diccionario. Prueba guardando distinta cantidad de elementos (muy grandes), " +
 		"ejecutando muchas veces las pruebas para generar un benchmark. Valida que la cantidad " +
