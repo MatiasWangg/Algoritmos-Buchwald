@@ -126,21 +126,26 @@ func (a *abb[K, V]) Borrar(clave K) V {
 			a.raiz = hijo
 		}
 	} else {
-		sustituto := a.encontrarMinimo(nodo.derecho)
+		padreSustituto := nodo
+		sustituto := nodo.derecho
+
+		for sustituto.izquierdo != nil {
+			padreSustituto = sustituto
+			sustituto = sustituto.izquierdo
+		}
+
 		nodo.clave = sustituto.clave
 		nodo.dato = sustituto.dato
-		a.Borrar(sustituto.clave)
+
+		if padreSustituto.izquierdo == sustituto {
+			padreSustituto.izquierdo = sustituto.derecho
+		} else {
+			padreSustituto.derecho = sustituto.derecho
+		}
 	}
 
 	a.cantidad--
 	return dato
-}
-
-func (a *abb[K, V]) encontrarMinimo(nodo *nodoAbb[K, V]) *nodoAbb[K, V] {
-	for nodo.izquierdo != nil {
-		nodo = nodo.izquierdo
-	}
-	return nodo
 }
 
 //----------------------------------Iteradores-----------------------------------------
