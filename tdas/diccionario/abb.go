@@ -19,12 +19,12 @@ type abb[K comparable, V any] struct {
 	cmp      funcCmp[K]
 }
 
-func crearNodoAbb[K comparable, V any]() *nodoAbb[K, V] {
+func crearNodoABB[K comparable, V any]() *nodoAbb[K, V] {
 	nodo := new(nodoAbb[K, V])
 	return nodo
 }
 
-func CrearAbb[K comparable, V any](funcion_cmp func(K, K) int) DiccionarioOrdenado[K, V] {
+func CrearABB[K comparable, V any](funcion_cmp func(K, K) int) DiccionarioOrdenado[K, V] {
 	abb := new(abb[K, V])
 	abb.raiz = nil
 	abb.cmp = funcion_cmp
@@ -71,7 +71,7 @@ func (a *abb[K, V]) Guardar(clave K, dato V) {
 	if nodo != nil {
 		nodo.dato = dato
 	} else {
-		nuevoNodo := crearNodoAbb[K, V]()
+		nuevoNodo := crearNodoABB[K, V]()
 		nuevoNodo.clave = clave
 		nuevoNodo.dato = dato
 

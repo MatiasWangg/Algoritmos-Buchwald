@@ -12,7 +12,7 @@ var TAMS_VOLUMEN2 = []int{12500, 25000, 50000, 100000, 200000, 400000}
 
 func TestDiccionarioOrdenadoVacio(t *testing.T) {
 	t.Log("Comprueba que Diccionario ABB vacío no tiene claves")
-	dic := TDADiccionario.CrearAbb[string, string](CompararStrings)
+	dic := TDADiccionario.CrearABB[string, string](CompararStrings)
 	require.EqualValues(t, 0, dic.Cantidad())
 	require.False(t, dic.Pertenece("A"))
 	require.PanicsWithValue(t, "La clave no pertenece al diccionario", func() { dic.Obtener("A") })
@@ -21,12 +21,12 @@ func TestDiccionarioOrdenadoVacio(t *testing.T) {
 
 func TestDiccionarioOrdenadoClaveDefault(t *testing.T) {
 	t.Log("Prueba sobre un ABB vacío que si justo buscamos la clave que es el default del tipo de dato, sigue sin existir")
-	dic := TDADiccionario.CrearAbb[string, string](CompararStrings)
+	dic := TDADiccionario.CrearABB[string, string](CompararStrings)
 	require.False(t, dic.Pertenece(""))
 	require.PanicsWithValue(t, "La clave no pertenece al diccionario", func() { dic.Obtener("") })
 	require.PanicsWithValue(t, "La clave no pertenece al diccionario", func() { dic.Borrar("") })
 
-	dicNum := TDADiccionario.CrearAbb[int, string](CompararInts)
+	dicNum := TDADiccionario.CrearABB[int, string](CompararInts)
 	require.False(t, dicNum.Pertenece(0))
 	require.PanicsWithValue(t, "La clave no pertenece al diccionario", func() { dicNum.Obtener(0) })
 	require.PanicsWithValue(t, "La clave no pertenece al diccionario", func() { dicNum.Borrar(0) })
@@ -34,7 +34,7 @@ func TestDiccionarioOrdenadoClaveDefault(t *testing.T) {
 
 func TestUnElemento(t *testing.T) {
 	t.Log("Comprueba que Diccionario ABB con un elemento tiene esa clave, únicamente")
-	dic := TDADiccionario.CrearAbb[string, int](CompararStrings)
+	dic := TDADiccionario.CrearABB[string, int](CompararStrings)
 	dic.Guardar("A", 10)
 	require.EqualValues(t, 1, dic.Cantidad())
 	require.True(t, dic.Pertenece("A"))
@@ -54,7 +54,7 @@ func TestDiccionarioOrdenadoGuardar(t *testing.T) {
 	claves := []string{clave1, clave2, clave3}
 	valores := []string{valor1, valor2, valor3}
 
-	dic := TDADiccionario.CrearAbb[string, string](CompararStrings)
+	dic := TDADiccionario.CrearABB[string, string](CompararStrings)
 
 	require.False(t, dic.Pertenece(claves[0]))
 	dic.Guardar(claves[0], valores[0])
@@ -78,7 +78,7 @@ func TestReemplazoDatos(t *testing.T) {
 	t.Log("Guarda un par de claves, y luego vuelve a guardar, buscando que el dato se haya reemplazado")
 	clave := "Gato"
 	clave2 := "Perro"
-	dic := TDADiccionario.CrearAbb[string, string](CompararStrings)
+	dic := TDADiccionario.CrearABB[string, string](CompararStrings)
 
 	dic.Guardar(clave, "miau")
 	dic.Guardar(clave2, "guau")
@@ -92,7 +92,7 @@ func TestReemplazoDatos(t *testing.T) {
 func TestReemplazoDatosMultiples(t *testing.T) {
 	t.Log("Guarda bastantes claves, y luego reemplaza sus datos. Luego valida que todos los datos sean correctos")
 
-	dic := TDADiccionario.CrearAbb[int, int](func(a, b int) int { return a - b })
+	dic := TDADiccionario.CrearABB[int, int](func(a, b int) int { return a - b })
 	for i := 0; i < 500; i++ {
 		dic.Guardar(i, i)
 	}
@@ -115,7 +115,7 @@ func TestDiccionarioOrdenadoBorrar(t *testing.T) {
 	valor3 := "moo"
 	claves := []string{clave1, clave2, clave3}
 	valores := []string{valor1, valor2, valor3}
-	dic := TDADiccionario.CrearAbb[string, string](CompararStrings)
+	dic := TDADiccionario.CrearABB[string, string](CompararStrings)
 
 	dic.Guardar(claves[0], valores[0])
 	dic.Guardar(claves[1], valores[1])
@@ -142,7 +142,7 @@ func TestDiccionarioOrdenadoBorrar(t *testing.T) {
 
 func TestReutlizarDeBorrados(t *testing.T) {
 	t.Log("Prueba de que no de error al insertar elemento")
-	dic := TDADiccionario.CrearAbb[string, string](CompararStrings)
+	dic := TDADiccionario.CrearABB[string, string](CompararStrings)
 	clave := "hola"
 	dic.Guardar(clave, "mundo!")
 	dic.Borrar(clave)
@@ -156,7 +156,7 @@ func TestReutlizarDeBorrados(t *testing.T) {
 
 func TestClavesNumericas(t *testing.T) {
 	t.Log("Valida que no solo funcione con strings")
-	dic := TDADiccionario.CrearAbb[int, string](CompararInts)
+	dic := TDADiccionario.CrearABB[int, string](CompararInts)
 	clave := 10
 	valor := "Gatito"
 
@@ -170,7 +170,7 @@ func TestClavesNumericas(t *testing.T) {
 
 func TestConClaveVacia(t *testing.T) {
 	t.Log("Guardamos una clave vacía (i.e. \"\") y deberia funcionar sin problemas")
-	dic := TDADiccionario.CrearAbb[string, string](CompararStrings)
+	dic := TDADiccionario.CrearABB[string, string](CompararStrings)
 	clave := ""
 	dic.Guardar(clave, clave)
 	require.True(t, dic.Pertenece(clave))
@@ -180,7 +180,7 @@ func TestConClaveVacia(t *testing.T) {
 
 func TestConValorNulo(t *testing.T) {
 	t.Log("Probamos que el valor puede ser nil sin problemas")
-	dic := TDADiccionario.CrearAbb[string, *int](CompararStrings)
+	dic := TDADiccionario.CrearABB[string, *int](CompararStrings)
 	clave := "Pez"
 	dic.Guardar(clave, nil)
 	require.True(t, dic.Pertenece(clave))
@@ -212,7 +212,7 @@ func insertarNoOrdenado(dic TDADiccionario.Diccionario[string, int], claves []st
 }
 
 func ejecutarPruebaVolumen2(b *testing.B, n int) {
-	dic := TDADiccionario.CrearAbb[string, int](CompararStrings)
+	dic := TDADiccionario.CrearABB[string, int](CompararStrings)
 
 	claves := make([]string, n)
 	valores := make([]int, n)
@@ -271,7 +271,7 @@ func BenchmarkDiccionarioOrdenado(b *testing.B) {
 
 func TestIterarDiccionarioOrdenadoVacio(t *testing.T) {
 	t.Log("Iterar sobre diccionario vacio es simplemente tenerlo al final")
-	dic := TDADiccionario.CrearAbb[string, int](CompararStrings)
+	dic := TDADiccionario.CrearABB[string, int](CompararStrings)
 	iter := dic.Iterador()
 	require.False(t, iter.HaySiguiente())
 	require.PanicsWithValue(t, "El iterador termino de iterar", func() { iter.VerActual() })
@@ -289,7 +289,7 @@ func TestDiccionarioOrdenadoIterar(t *testing.T) {
 	valor3 := "moo"
 	claves := []string{clave1, clave2, clave3}
 	valores := []string{valor1, valor2, valor3}
-	dic := TDADiccionario.CrearAbb[string, string](CompararStrings)
+	dic := TDADiccionario.CrearABB[string, string](CompararStrings)
 	dic.Guardar(claves[0], valores[0])
 	dic.Guardar(claves[1], valores[1])
 	dic.Guardar(claves[2], valores[2])
@@ -321,7 +321,7 @@ func TestDiccionarioOrdenadoIterar(t *testing.T) {
 
 func TestIterNoLlegaAlFinal(t *testing.T) {
 	t.Log("Crea un iterador y no lo avanza. Luego crea otro iterador y lo avanza.")
-	dic := TDADiccionario.CrearAbb[string, string](CompararStrings)
+	dic := TDADiccionario.CrearABB[string, string](CompararStrings)
 	claves := []string{"A", "B", "C"}
 	dic.Guardar(claves[0], "")
 	dic.Guardar(claves[1], "")
@@ -352,7 +352,7 @@ func TestIterInternoClaves(t *testing.T) {
 	clave2 := "Perro"
 	clave3 := "Vaca"
 	claves := []string{clave1, clave2, clave3}
-	dic := TDADiccionario.CrearAbb[string, *int](CompararStrings)
+	dic := TDADiccionario.CrearABB[string, *int](CompararStrings)
 	dic.Guardar(claves[0], nil)
 	dic.Guardar(claves[1], nil)
 	dic.Guardar(claves[2], nil)
@@ -384,7 +384,7 @@ func TestIterInternoValores(t *testing.T) {
 	clave4 := "Burrito"
 	clave5 := "Hamster"
 
-	dic := TDADiccionario.CrearAbb[string, int](CompararStrings)
+	dic := TDADiccionario.CrearABB[string, int](CompararStrings)
 	dic.Guardar(clave1, 6)
 	dic.Guardar(clave2, 2)
 	dic.Guardar(clave3, 3)
@@ -405,7 +405,7 @@ func TestVolumenIterCorte(t *testing.T) {
 	t.Log("Prueba de volumen de iterador interno, para validar que siempre que se indique que se corte" +
 		" la iteración con la función visitar, se corte")
 
-	dic := TDADiccionario.CrearAbb[int, int](CompararInts)
+	dic := TDADiccionario.CrearABB[int, int](CompararInts)
 
 	for i := 0; i < 10000; i++ {
 		dic.Guardar(i, i)
@@ -433,7 +433,7 @@ func TestVolumenIterCorte(t *testing.T) {
 
 func TestIteradorRangoDesdeHasta(t *testing.T) {
 	t.Log("Iterar sobre el diccionario desde un número hasta otro")
-	dic := TDADiccionario.CrearAbb[int, string](CompararInts)
+	dic := TDADiccionario.CrearABB[int, string](CompararInts)
 
 	dic.Guardar(1, "uno")
 	dic.Guardar(2, "dos")
@@ -468,7 +468,7 @@ func TestIteradorRangoDesdeHasta(t *testing.T) {
 
 func TestIteradorRangoDesde(t *testing.T) {
 	t.Log("Iterar sobre el diccionario desde un número en adelante")
-	dic := TDADiccionario.CrearAbb[int, string](CompararInts)
+	dic := TDADiccionario.CrearABB[int, string](CompararInts)
 
 	dic.Guardar(1, "uno")
 	dic.Guardar(2, "dos")
@@ -502,7 +502,7 @@ func TestIteradorRangoDesde(t *testing.T) {
 
 func TestIteradorRangoHasta(t *testing.T) {
 	t.Log("Iterar sobre el diccionario hasta un número")
-	dic := TDADiccionario.CrearAbb[int, string](CompararInts)
+	dic := TDADiccionario.CrearABB[int, string](CompararInts)
 
 	dic.Guardar(1, "uno")
 	dic.Guardar(2, "dos")
@@ -536,7 +536,7 @@ func TestIteradorRangoHasta(t *testing.T) {
 
 func TestIteradorInternoRangoDesdeHasta(t *testing.T) {
 	t.Log("Iterar sobre el diccionario interno desde un número hasta otro")
-	dic := TDADiccionario.CrearAbb[int, string](CompararInts)
+	dic := TDADiccionario.CrearABB[int, string](CompararInts)
 
 	dic.Guardar(1, "uno")
 	dic.Guardar(2, "dos")
