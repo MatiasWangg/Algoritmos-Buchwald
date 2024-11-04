@@ -14,32 +14,31 @@ type heap[T any] struct {
 
 func CrearHeap[T any](funcion_cmp func(T, T) int) ColaPrioridad[T] {
 	heap := new(heap[T])
-	heap.cantidad = TAM_INICIAL
+	heap.cantidad = 0
 	heap.cmp = funcion_cmp
-	heap.arreglo = make([]T, heap.cantidad)
+	heap.arreglo = make([]T, TAM_INICIAL)
 	return heap
 }
 
-
 func (heap *heap[T]) redimensionar(nuevoTam int) {
-	nuevoArreglo := make([]T, nuevoTam) 
+	nuevoArreglo := make([]T, nuevoTam)
 	copy(nuevoArreglo, heap.arreglo)
-	heap.arreglo = nuevoArreglo 
+	heap.arreglo = nuevoArreglo
 }
 
 func CrearHeapArr[T any](arreglo []T, funcion_cmp func(T, T) int) ColaPrioridad[T] {
-    heap := new(heap[T])
-    heap.cmp = funcion_cmp
-    heap.cantidad = len(arreglo)
-    heap.arreglo = make([]T, heap.cantidad) 
+	heap := new(heap[T])
+	heap.cmp = funcion_cmp
+	heap.cantidad = len(arreglo)
+	heap.arreglo = make([]T, heap.cantidad)
 
-    copy(heap.arreglo, arreglo)
+	copy(heap.arreglo, arreglo)
 
-    for i := heap.cantidad/2 - 1; i >= 0; i-- {
-        heap.Heapify(i)
-    }
+	for i := heap.cantidad/2 - 1; i >= 0; i-- {
+		heap.heapify(i)
+	}
 
-    return heap
+	return heap
 }
 
 func (heap *heap[T]) EstaVacia() bool {
@@ -47,12 +46,12 @@ func (heap *heap[T]) EstaVacia() bool {
 }
 
 func (heap *heap[T]) Encolar(elem T) {
-	if heap.cantidad == len(heap.arreglo) { 
-		heap.redimensionar(2 * len(heap.arreglo)) 
+	if heap.cantidad == len(heap.arreglo) {
+		heap.redimensionar(2 * len(heap.arreglo))
 	}
-	heap.arreglo[heap.cantidad] = elem 
-	heap.upheap(heap.cantidad)         
-	heap.cantidad++                 
+	heap.arreglo[heap.cantidad] = elem
+	heap.upheap(heap.cantidad)
+	heap.cantidad++
 }
 
 func (heap *heap[T]) VerMax() T {
@@ -129,29 +128,29 @@ func (heap *heap[T]) hijoMaximo(i, j int) int {
 	}
 }
 
-func (heap *heap[T]) Heapify(i int) {
-    hijoIzquierdo := hijoIzq(i)
-    hijoDerecho := hijoDer(i)
-    mayor := i
+func (heap *heap[T]) heapify(i int) {
+	hijoIzquierdo := hijoIzq(i)
+	hijoDerecho := hijoDer(i)
+	mayor := i
 
-    if hijoIzquierdo < heap.cantidad && heap.cmp(heap.arreglo[hijoIzquierdo], heap.arreglo[mayor]) > 0 {
-        mayor = hijoIzquierdo
-    }
+	if hijoIzquierdo < heap.cantidad && heap.cmp(heap.arreglo[hijoIzquierdo], heap.arreglo[mayor]) > 0 {
+		mayor = hijoIzquierdo
+	}
 
-    if hijoDerecho < heap.cantidad && heap.cmp(heap.arreglo[hijoDerecho], heap.arreglo[mayor]) > 0 {
-        mayor = hijoDerecho
-    }
+	if hijoDerecho < heap.cantidad && heap.cmp(heap.arreglo[hijoDerecho], heap.arreglo[mayor]) > 0 {
+		mayor = hijoDerecho
+	}
 
-    if mayor != i {
-        heap.arreglo[i], heap.arreglo[mayor] = heap.arreglo[mayor], heap.arreglo[i]
-        heap.Heapify(mayor)
-    }
+	if mayor != i {
+		heap.arreglo[i], heap.arreglo[mayor] = heap.arreglo[mayor], heap.arreglo[i]
+		heap.heapify(mayor)
+	}
 }
 
 func HeapSort[T any](elementos []T, funcion_cmp func(T, T) int) {
-    heap := CrearHeapArr(elementos, funcion_cmp)
+	heap := CrearHeapArr(elementos, funcion_cmp)
 
-    for i := len(elementos) - 1; i >= 0; i-- {
-        elementos[i] = heap.Desencolar()
-    }
+	for i := len(elementos) - 1; i >= 0; i-- {
+		elementos[i] = heap.Desencolar()
+	}
 }
