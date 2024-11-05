@@ -35,8 +35,9 @@ func CrearHeapArr[T any](arreglo []T, funcion_cmp func(T, T) int) ColaPrioridad[
 	} else {
 		heap.arreglo = make([]T, heap.cantidad)
 		copy(heap.arreglo, arreglo)
+
 		for i := heap.cantidad/2 - 1; i >= 0; i-- {
-			heap.heapify(i)
+			heapify(heap.arreglo, heap.cantidad, i, heap.cmp)
 		}
 	}
 
@@ -130,29 +131,31 @@ func (heap *heap[T]) hijoMaximo(i, j int) int {
 	}
 }
 
-func (heap *heap[T]) heapify(i int) {
+func heapify[T any](arreglo []T, n, i int, cmp func(T, T) int) {
+	mayor := i
 	hijoIzquierdo := hijoIzq(i)
 	hijoDerecho := hijoDer(i)
-	mayor := i
 
-	if hijoIzquierdo < heap.cantidad && heap.cmp(heap.arreglo[hijoIzquierdo], heap.arreglo[mayor]) > 0 {
+	if hijoIzquierdo < n && cmp(arreglo[hijoIzquierdo], arreglo[mayor]) > 0 {
 		mayor = hijoIzquierdo
 	}
-
-	if hijoDerecho < heap.cantidad && heap.cmp(heap.arreglo[hijoDerecho], heap.arreglo[mayor]) > 0 {
+	if hijoDerecho < n && cmp(arreglo[hijoDerecho], arreglo[mayor]) > 0 {
 		mayor = hijoDerecho
 	}
-
 	if mayor != i {
-		heap.arreglo[i], heap.arreglo[mayor] = heap.arreglo[mayor], heap.arreglo[i]
-		heap.heapify(mayor)
+		arreglo[i], arreglo[mayor] = arreglo[mayor], arreglo[i]
+		heapify(arreglo, n, mayor, cmp)
 	}
 }
-
 func HeapSort[T any](elementos []T, funcion_cmp func(T, T) int) {
-	heap := CrearHeapArr(elementos, funcion_cmp)
+	n := len(elementos)
 
-	for i := len(elementos) - 1; i >= 0; i-- {
-		elementos[i] = heap.Desencolar()
+	for i := n/2 - 1; i >= 0; i-- {
+		heapify(elementos, n, i, funcion_cmp)
+	}
+
+	for i := n - 1; i > 0; i-- {
+		elementos[0], elementos[i] = elementos[i], elementos[0]
+		heapify(elementos, i, 0, funcion_cmp)
 	}
 }
