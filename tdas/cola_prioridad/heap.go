@@ -30,12 +30,14 @@ func CrearHeapArr[T any](arreglo []T, funcion_cmp func(T, T) int) ColaPrioridad[
 	heap := new(heap[T])
 	heap.cmp = funcion_cmp
 	heap.cantidad = len(arreglo)
-	heap.arreglo = make([]T, heap.cantidad)
-
-	copy(heap.arreglo, arreglo)
-
-	for i := heap.cantidad/2 - 1; i >= 0; i-- {
-		heap.heapify(i)
+	if heap.cantidad == 0 {
+		heap.arreglo = make([]T, TAM_INICIAL)
+	} else {
+		heap.arreglo = make([]T, heap.cantidad)
+		copy(heap.arreglo, arreglo)
+		for i := heap.cantidad/2 - 1; i >= 0; i-- {
+			heap.heapify(i)
+		}
 	}
 
 	return heap
