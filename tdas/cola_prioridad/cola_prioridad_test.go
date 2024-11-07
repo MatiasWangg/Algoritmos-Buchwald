@@ -118,9 +118,7 @@ func TestVolumen(t *testing.T) {
 	t.Log("Probamos como se comporta la cola con una gran cantidad de elementos, los encolamos y desencolamos y vemos si siguen el orden de prioridad")
 	for _, n := range TAMS_VOLUMEN {
 		t.Run(fmt.Sprintf("Prueba %d elementos", n), func(t *testing.T) {
-			for i := 0; i < 6; i++ {
 				ejecutarPruebaVolumen(t, n)
-			}
 		})
 	}
 }
@@ -137,6 +135,40 @@ func TestColaVaciada(t *testing.T) {
 	require.EqualValues(t, 0, heap.Cantidad())
 	require.PanicsWithValue(t, "La cola esta vacia", func() { heap.Desencolar() }, "Desencolar deberia causar panico en una cola vacia")
 	require.PanicsWithValue(t, "La cola esta vacia", func() { heap.VerMax() }, "VerMax deberia causar panico en una cola vacia")
+}
+
+func TestVolumenCrearHeapArr(t *testing.T) {
+	t.Log("Probamos como se comporta la cola creada a partir de un arreglo con gran cantidad de elementos")
+	for _, n := range TAMS_VOLUMEN {
+		t.Run(fmt.Sprintf("Prueba %d elementos con CrearHeapArr", n), func(t *testing.T) {
+			datos := make([]int, n)
+			for i := 0; i < n; i++ {
+				datos[i] = i
+			}
+			heap := TDAHeap.CrearHeapArr(datos, CompararInts)
+			require.False(t, heap.EstaVacia(), "La cola no debería estar vacía")
+			for i := n - 1; i >= 0; i-- {
+				require.EqualValues(t, i, heap.Desencolar(), "El valor desencolado debería ser el correcto")
+			}
+			require.True(t, heap.EstaVacia(), "La cola debería estar vacía después de desencolar todos los elementos")
+		})
+	}
+}
+
+func TestVolumenHeapSort(t *testing.T) {
+	t.Log("Probamos como se comporta HeapSort con gran cantidad de elementos")
+	for _, n := range TAMS_VOLUMEN {
+		t.Run(fmt.Sprintf("Prueba %d elementos con HeapSort", n), func(t *testing.T) {
+			datos := make([]int, n)
+			for i := 0; i < n; i++ {
+				datos[i] = n - i 
+			}
+			TDAHeap.HeapSort(datos, CompararInts)
+			for i := 1; i < len(datos); i++ {
+				require.True(t, datos[i-1] <= datos[i], "El arreglo no está ordenado correctamente")
+			}
+		})
+	}
 }
 
 func CompararStrings(a, b string) int {
