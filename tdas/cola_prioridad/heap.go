@@ -1,6 +1,10 @@
 package cola_prioridad
 
-const TAM_INICIAL = 10
+const (
+	TAM_INICIAL       = 10
+	FACTOR_REDIMENSION = 2
+	FACTOR_REDUCCION   = 4 
+)
 
 //hijo izquierdo 2*i+1
 //hijo derecho 2*i+2
@@ -50,7 +54,7 @@ func (heap *heap[T]) EstaVacia() bool {
 
 func (heap *heap[T]) Encolar(elem T) {
 	if heap.cantidad == len(heap.arreglo) {
-		heap.redimensionar(2 * len(heap.arreglo))
+		heap.redimensionar(FACTOR_REDIMENSION * len(heap.arreglo))
 	}
 	heap.arreglo[heap.cantidad] = elem
 	heap.upheap(heap.cantidad)
@@ -72,8 +76,8 @@ func (heap *heap[T]) Desencolar() T {
 	heap.arreglo[0], heap.arreglo[heap.cantidad-1] = heap.arreglo[heap.cantidad-1], heap.arreglo[0]
 	heap.cantidad--
 
-	if heap.cantidad > 0 && heap.cantidad == len(heap.arreglo)/4 {
-		heap.redimensionar(len(heap.arreglo) / 2)
+	if heap.cantidad > 0 && heap.cantidad == len(heap.arreglo)/FACTOR_REDUCCION {
+		heap.redimensionar(len(heap.arreglo) / FACTOR_REDIMENSION)
 	}
 
 	heap.downheap(0)
