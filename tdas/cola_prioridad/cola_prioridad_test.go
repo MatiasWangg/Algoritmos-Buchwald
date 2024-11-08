@@ -118,7 +118,7 @@ func TestVolumen(t *testing.T) {
 	t.Log("Probamos como se comporta la cola con una gran cantidad de elementos, los encolamos y desencolamos y vemos si siguen el orden de prioridad")
 	for _, n := range TAMS_VOLUMEN {
 		t.Run(fmt.Sprintf("Prueba %d elementos", n), func(t *testing.T) {
-				ejecutarPruebaVolumen(t, n)
+			ejecutarPruebaVolumen(t, n)
 		})
 	}
 }
@@ -161,7 +161,7 @@ func TestVolumenHeapSort(t *testing.T) {
 		t.Run(fmt.Sprintf("Prueba %d elementos con HeapSort", n), func(t *testing.T) {
 			datos := make([]int, n)
 			for i := 0; i < n; i++ {
-				datos[i] = n - i 
+				datos[i] = n - i
 			}
 			TDAHeap.HeapSort(datos, CompararInts)
 			for i := 1; i < len(datos); i++ {

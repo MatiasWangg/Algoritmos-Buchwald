@@ -1,9 +1,9 @@
 package cola_prioridad
 
 const (
-	TAM_INICIAL       = 10
+	TAM_INICIAL        = 10
 	FACTOR_REDIMENSION = 2
-	FACTOR_REDUCCION   = 4 
+	FACTOR_REDUCCION   = 4
 )
 
 //hijo izquierdo 2*i+1
@@ -41,7 +41,7 @@ func CrearHeapArr[T any](arreglo []T, funcion_cmp func(T, T) int) ColaPrioridad[
 		copy(heap.arreglo, arreglo)
 
 		for i := heap.cantidad/2 - 1; i >= 0; i-- {
-			heapify(heap.arreglo, heap.cantidad, i, heap.cmp)
+			downheap(heap.arreglo, heap.cantidad, i, heap.cmp)
 		}
 	}
 
@@ -80,11 +80,10 @@ func (heap *heap[T]) Desencolar() T {
 		heap.redimensionar(len(heap.arreglo) / FACTOR_REDIMENSION)
 	}
 
-	heapify(heap.arreglo, heap.cantidad, 0, heap.cmp)
+	downheap(heap.arreglo, heap.cantidad, 0, heap.cmp)
 
 	return eliminado
 }
-
 
 func (heap *heap[T]) Cantidad() int {
 	return heap.cantidad
@@ -100,20 +99,7 @@ func (heap *heap[T]) upheap(arreglo []T, i int) {
 		i = padre
 	}
 }
-
-
-
-func hijoIzq(i int) int {
-	return 2*i + 1
-}
-func hijoDer(i int) int {
-	return 2*i + 2
-}
-func padre(i int) int {
-	return (i - 1) / 2
-}
-
-func heapify[T any](arreglo []T, n, i int, cmp func(T, T) int) {
+func downheap[T any](arreglo []T, n, i int, cmp func(T, T) int) {
 	mayor := i
 	hijoIzquierdo := hijoIzq(i)
 	hijoDerecho := hijoDer(i)
@@ -126,18 +112,29 @@ func heapify[T any](arreglo []T, n, i int, cmp func(T, T) int) {
 	}
 	if mayor != i {
 		arreglo[i], arreglo[mayor] = arreglo[mayor], arreglo[i]
-		heapify(arreglo, n, mayor, cmp)
+		downheap(arreglo, n, mayor, cmp)
 	}
 }
+
+func hijoIzq(i int) int {
+	return 2*i + 1
+}
+func hijoDer(i int) int {
+	return 2*i + 2
+}
+func padre(i int) int {
+	return (i - 1) / 2
+}
+
 func HeapSort[T any](elementos []T, funcion_cmp func(T, T) int) {
 	n := len(elementos)
 
 	for i := n/2 - 1; i >= 0; i-- {
-		heapify(elementos, n, i, funcion_cmp)
+		downheap(elementos, n, i, funcion_cmp)
 	}
 
 	for i := n - 1; i > 0; i-- {
 		elementos[0], elementos[i] = elementos[i], elementos[0]
-		heapify(elementos, i, 0, funcion_cmp)
+		downheap(elementos, i, 0, funcion_cmp)
 	}
 }
