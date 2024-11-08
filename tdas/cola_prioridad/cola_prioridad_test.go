@@ -146,11 +146,11 @@ func TestVolumenCrearHeapArr(t *testing.T) {
 				datos[i] = i
 			}
 			heap := TDAHeap.CrearHeapArr(datos, CompararInts)
-			require.False(t, heap.EstaVacia(), "La cola no debería estar vacía")
+			require.False(t, heap.EstaVacia(), "La cola no deberia estar vacia")
 			for i := n - 1; i >= 0; i-- {
 				require.EqualValues(t, i, heap.Desencolar(), "El valor desencolado debería ser el correcto")
 			}
-			require.True(t, heap.EstaVacia(), "La cola debería estar vacía después de desencolar todos los elementos")
+			require.True(t, heap.EstaVacia(), "La cola deberia estar vacia despues de desencolar todos los elementos")
 		})
 	}
 }
@@ -165,7 +165,7 @@ func TestVolumenHeapSort(t *testing.T) {
 			}
 			TDAHeap.HeapSort(datos, CompararInts)
 			for i := 1; i < len(datos); i++ {
-				require.True(t, datos[i-1] <= datos[i], "El arreglo no está ordenado correctamente")
+				require.True(t, datos[i-1] <= datos[i], "El arreglo no esta ordenado correctamente")
 			}
 		})
 	}
