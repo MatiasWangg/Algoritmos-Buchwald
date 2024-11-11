@@ -17,19 +17,13 @@ type heap[T any] struct {
 }
 
 func CrearHeap[T any](funcion_cmp func(T, T) int) ColaPrioridad[T] {
+
 	heap := new(heap[T])
 	heap.cantidad = 0
 	heap.cmp = funcion_cmp
 	heap.arreglo = make([]T, TAM_INICIAL)
 	return heap
 }
-
-func (heap *heap[T]) redimensionar(nuevoTam int) {
-	nuevoArreglo := make([]T, nuevoTam)
-	copy(nuevoArreglo, heap.arreglo)
-	heap.arreglo = nuevoArreglo
-}
-
 func CrearHeapArr[T any](arreglo []T, funcion_cmp func(T, T) int) ColaPrioridad[T] {
 	heap := new(heap[T])
 	heap.cmp = funcion_cmp
@@ -40,12 +34,16 @@ func CrearHeapArr[T any](arreglo []T, funcion_cmp func(T, T) int) ColaPrioridad[
 		heap.arreglo = make([]T, heap.cantidad)
 		copy(heap.arreglo, arreglo)
 
-		for i := heap.cantidad/2 - 1; i >= 0; i-- {
-			downheap(heap.arreglo, heap.cantidad, i, heap.cmp)
-		}
+		heapify(heap.arreglo, heap.cantidad, heap.cmp)
 	}
 
 	return heap
+}
+
+func (heap *heap[T]) redimensionar(nuevoTam int) {
+	nuevoArreglo := make([]T, nuevoTam)
+	copy(nuevoArreglo, heap.arreglo)
+	heap.arreglo = nuevoArreglo
 }
 
 func (heap *heap[T]) EstaVacia() bool {
@@ -64,7 +62,7 @@ func (heap *heap[T]) Encolar(elem T) {
 		heap.redimensionar(FACTOR_REDIMENSION * len(heap.arreglo))
 	}
 	heap.arreglo[heap.cantidad] = elem
-	heap.upheap(heap.arreglo, heap.cantidad)
+	upheap(heap.arreglo, heap.cantidad, heap.cmp)
 	heap.cantidad++
 }
 
@@ -89,11 +87,13 @@ func (heap *heap[T]) Cantidad() int {
 	return heap.cantidad
 }
 
-func (heap *heap[T]) upheap(arreglo []T, i int) {
+//----------------------------------------------------------//
+
+func upheap[T any](arreglo []T, i int, cmp func(T, T) int) {
 	for i > 0 {
 		padre := padre(i)
-		if heap.cmp(arreglo[i], arreglo[padre]) <= 0 {
-			break
+		if cmp(arreglo[i], arreglo[padre]) <= 0 {
+			return
 		}
 		arreglo[i], arreglo[padre] = arreglo[padre], arreglo[i]
 		i = padre
@@ -129,12 +129,17 @@ func padre(i int) int {
 func HeapSort[T any](elementos []T, funcion_cmp func(T, T) int) {
 	n := len(elementos)
 
-	for i := n/2 - 1; i >= 0; i-- {
-		downheap(elementos, n, i, funcion_cmp)
-	}
+	heapify(elementos, n, funcion_cmp)
 
 	for i := n - 1; i > 0; i-- {
 		elementos[0], elementos[i] = elementos[i], elementos[0]
 		downheap(elementos, i, 0, funcion_cmp)
 	}
+}
+
+func heapify[T any](elementos []T, n int, cmp func(T, T) int) {
+	for i := n/2 - 1; i >= 0; i-- {
+		downheap(elementos, n, i, cmp)
+	}
+
 }
