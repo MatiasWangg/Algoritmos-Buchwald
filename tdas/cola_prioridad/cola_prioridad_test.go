@@ -2,13 +2,14 @@ package cola_prioridad_test
 
 import (
 	"fmt"
+	"math/rand/v2"
 	TDAHeap "tdas/cola_prioridad"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
-var TAMS_VOLUMEN = []int{12500, 25000, 50000, 100000, 200000, 400000}
+var TAMS_VOLUMEN = []int{10, 25000, 50000, 100000, 200000, 400000}
 var Ints = []int{20, 100, 40, 1, 5, 30, 60, 15, 19, 10, 5, 132, 5, 42, 26, 2, 626, 8, 626, 2}
 var Strings = []string{"E", "O", "A", "I", "S", "A", "E", "T", "Y", "D", "G", "OK", "HOLA"}
 
@@ -99,30 +100,6 @@ func TestColaGenerica(t *testing.T) {
 
 }
 
-func ejecutarPruebaVolumen(t *testing.T, n int) {
-	heap := TDAHeap.CrearHeap(CompararInts)
-	datos := make([]int, n)
-
-	ok := true
-	for i := 0; i < n; i++ {
-		datos[i] = i
-		heap.Encolar(i)
-		require.EqualValues(t, i, heap.VerMax(), "No esta encolando correctamente")
-	}
-	for i := n; i > 0; i-- {
-		require.EqualValues(t, i-1, heap.Desencolar(), "No esta desencolando correctamente")
-	}
-	require.True(t, ok, "La cola no funciona bien con muchos elementos")
-}
-func TestVolumen(t *testing.T) {
-	t.Log("Probamos como se comporta la cola con una gran cantidad de elementos, los encolamos y desencolamos y vemos si siguen el orden de prioridad")
-	for _, n := range TAMS_VOLUMEN {
-		t.Run(fmt.Sprintf("Prueba %d elementos", n), func(t *testing.T) {
-			ejecutarPruebaVolumen(t, n)
-		})
-	}
-}
-
 func TestColaVaciada(t *testing.T) {
 	t.Log("Aqui probamos si una cola con datos se vacia correctamente y funciona igual que una cola vacia recien creada")
 	datos := []string{"E", "D", "C", "B", "A"}
@@ -137,38 +114,70 @@ func TestColaVaciada(t *testing.T) {
 	require.PanicsWithValue(t, "La cola esta vacia", func() { heap.VerMax() }, "VerMax deberia causar panico en una cola vacia")
 }
 
-func TestVolumenCrearHeapArr(t *testing.T) {
-	t.Log("Probamos como se comporta la cola creada a partir de un arreglo con gran cantidad de elementos")
-	for _, n := range TAMS_VOLUMEN {
-		t.Run(fmt.Sprintf("Prueba %d elementos con CrearHeapArr", n), func(t *testing.T) {
-			datos := make([]int, n)
-			for i := 0; i < n; i++ {
-				datos[i] = i
-			}
-			heap := TDAHeap.CrearHeapArr(datos, CompararInts)
-			require.False(t, heap.EstaVacia(), "La cola no deberia estar vacia")
-			for i := n - 1; i >= 0; i-- {
-				require.EqualValues(t, i, heap.Desencolar(), "El valor desencolado debería ser el correcto")
-			}
-			require.True(t, heap.EstaVacia(), "La cola deberia estar vacia despues de desencolar todos los elementos")
-		})
-	}
-}
-
 func TestVolumenHeapSort(t *testing.T) {
 	t.Log("Probamos como se comporta HeapSort con gran cantidad de elementos")
 	for _, n := range TAMS_VOLUMEN {
 		t.Run(fmt.Sprintf("Prueba %d elementos con HeapSort", n), func(t *testing.T) {
-			datos := make([]int, n)
-			for i := 0; i < n; i++ {
-				datos[i] = n - i
-			}
+			datos := crearArregloAleatorio(n)
 			TDAHeap.HeapSort(datos, CompararInts)
 			for i := 1; i < len(datos); i++ {
 				require.True(t, datos[i-1] <= datos[i], "El arreglo no esta ordenado correctamente")
 			}
 		})
 	}
+}
+
+func ejecutarPruebaVolumen(t *testing.T, n int) {
+	heap := TDAHeap.CrearHeap(CompararInts)
+	datos := crearArregloAleatorio(n)
+
+	ok := true
+	for _, i := range datos {
+		heap.Encolar(i)
+		if i < heap.VerMax() {
+			i = heap.VerMax()
+		}
+		require.EqualValues(t, i, heap.VerMax(), "No esta encolando correctamente")
+	}
+	TDAHeap.HeapSort(datos, CompararInts)
+	for i := n - 1; i >= 0; i-- {
+		require.EqualValues(t, datos[i], heap.Desencolar(), "No esta desencolando correctamente")
+	}
+	require.True(t, ok, "La cola no funciona bien con muchos elementos")
+}
+func TestVolumen(t *testing.T) {
+	t.Log("Probamos como se comporta la cola con una gran cantidad de elementos, los encolamos y desencolamos y vemos si siguen el orden de prioridad")
+	for _, n := range TAMS_VOLUMEN {
+		t.Run(fmt.Sprintf("Prueba %d elementos", n), func(t *testing.T) {
+			ejecutarPruebaVolumen(t, n)
+		})
+	}
+}
+
+func TestVolumenCrearHeapArr(t *testing.T) {
+	t.Log("Probamos como se comporta la cola creada a partir de un arreglo con gran cantidad de elementos")
+	for _, n := range TAMS_VOLUMEN {
+		t.Run(fmt.Sprintf("Prueba %d elementos con CrearHeapArr", n), func(t *testing.T) {
+			datos := crearArregloAleatorio(n)
+
+			heap := TDAHeap.CrearHeapArr(datos, CompararInts)
+			TDAHeap.HeapSort(datos, CompararInts)
+			require.False(t, heap.EstaVacia(), "La cola no deberia estar vacia")
+			for i := n - 1; i >= 0; i-- {
+				eliminado := heap.Desencolar()
+				require.EqualValues(t, datos[i], eliminado, "El valor desencolado debería ser el correcto")
+			}
+			require.True(t, heap.EstaVacia(), "La cola deberia estar vacia despues de desencolar todos los elementos")
+		})
+	}
+}
+
+func crearArregloAleatorio(cant int) []int {
+	datos := make([]int, cant)
+	for i := range datos {
+		datos[i] = rand.IntN(10)
+	}
+	return datos
 }
 
 func CompararStrings(a, b string) int {
