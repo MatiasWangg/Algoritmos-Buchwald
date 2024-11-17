@@ -15,13 +15,11 @@ func main() {
 	//Estructuras para guardar los datos
 	visitantes := diccionario.CrearHash[string, bool]()
 	recursos := diccionario.CrearHash[string, int]()
-	dosDetectados := DetectarDos()
 
 	for scanner.Scan() {
 		comando := scanner.Text()
 
-		//A priori estos parametros
-		err := procesarComando(comando, visitantes, recursos, dosDetectados)
+		err := procesarComando(comando, visitantes, recursos)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error en el comando ingresado")
 		}
@@ -30,27 +28,27 @@ func main() {
 
 // Pensaba hacer  una funcion con un switch para procesar cada comando recibido e ir
 // llamando a las diferentes funciones que estaran en otros archivos
-func procesarComando(comando string) error {
+func procesarComando(comando string, visitantes diccionario.Diccionario[string, bool], recursos diccionario.Diccionario[string, int]) error {
 	partes := strings.Fields(comando)
 
 	switch partes[0] {
 	case "agregar_archivo":
 		archivo := partes[1]
 		//funcion que trabaja con los log (parametros provisorios)
-		return AgregarArchivo(archivo)
+		return AgregarArchivo(archivo, visitantes, recursos)
 	case "ver_visitantes":
 		desde, hasta := partes[1], partes[2]
 		//Lo mismo aca con los parametros
-		VerVisitantes(desde, hasta)
+		VerVisitantes(desde, hasta, visitantes)
 	case "ver_mas_visitados":
 		n, err := strconv.Atoi(partes[1])
 		//Lo mismo aca con los parametros
 		if err != nil {
 			return fmt.Errorf("error en ver_mas_visitados")
 		}
-		VerMasVisitados(n)
+		VerMasVisitados(n, recursos)
 	default:
-		return fmt.Errorf("Comando no reconocido")
+		return fmt.Errorf("comando no reconocido")
 	}
 	fmt.Println("OK")
 	return nil

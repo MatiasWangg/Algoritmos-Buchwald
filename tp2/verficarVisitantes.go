@@ -1,9 +1,14 @@
 package tp2
 
-func VerVisitantes(desde, hasta string) {
+import(
+	"tdas/diccionario"
+)
+
+
+func VerVisitantes(desde, hasta string, visitantes diccionario.Diccionario[string, bool]) {
 
 }
 
-func VerMasVisitados(n int) {
+func VerMasVisitados(n int, recursos diccionario.Diccionario[string, int]) {
 
 }
