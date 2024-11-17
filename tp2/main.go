@@ -5,16 +5,22 @@ import(
 	"os"
 	"fmt"
 	"strings"
+	"tdas/diccionario"
 )
 
-//Estructura inicial, nada definitivo 
 func main(){
 	scanner := bufio.NewScanner(os.Stdin)
+
+	//Estructuras para guardar los datos
+	visitantes := diccionario.CrearHash[string, bool]()
+	recursos := diccionario.CrearHash[string, int]()
+	dosDetectados := DetectarDos()
 
 	for scanner.Scan() {
 		comando := scanner.Text()
 
-		err := procesarComando(comando, ....)
+		//A priori estos parametros
+		err := procesarComando(comando, visitantes, recursos, dosDetectados)
 		if err != nil{
 			fmt.Fprintf(os.Stderr,"Error en el comando ingresado")
 		}
