@@ -1,10 +1,9 @@
 package tp2
 
-func VerVisitantes(){
-	
+func VerVisitantes(desde, hasta string) {
+
 }
 
-
-func VerMasVisitados(){
+func VerMasVisitados(n int) {
 
 }

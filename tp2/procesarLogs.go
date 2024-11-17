@@ -1,5 +1,5 @@
 package tp2
 
-func AgregarArchivo(comando string){
-
+func AgregarArchivo(archivo string) error {
+	return nil
 }
