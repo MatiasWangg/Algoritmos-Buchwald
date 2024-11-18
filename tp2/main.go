@@ -13,7 +13,10 @@ func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	//Estructuras para guardar los datos
-	visitantes := diccionario.CrearHash[string, bool]()
+	visitantes := diccionario.CrearABB[int, string](compararInts)
+	//visitantes debe ser un arbol para iterarlo con desde y hasta
+	//la clave es un int que sera la representacion numerica
+	//y el valor deberia guardar la ip
 	recursos := diccionario.CrearHash[string, int]()
 
 	for scanner.Scan() {
@@ -28,7 +31,7 @@ func main() {
 
 // Pensaba hacer  una funcion con un switch para procesar cada comando recibido e ir
 // llamando a las diferentes funciones que estaran en otros archivos
-func procesarComando(comando string, visitantes diccionario.Diccionario[string, bool], recursos diccionario.Diccionario[string, int]) error {
+func procesarComando(comando string, visitantes diccionario.DiccionarioOrdenado[int, string], recursos diccionario.Diccionario[string, int]) error {
 	partes := strings.Fields(comando)
 
 	switch partes[0] {
@@ -52,4 +55,13 @@ func procesarComando(comando string, visitantes diccionario.Diccionario[string, 
 	}
 	fmt.Println("OK")
 	return nil
+}
+
+func compararInts(a, b int) int {
+	if a < b {
+		return -1
+	} else if a > b {
+		return 1
+	}
+	return 0
 }

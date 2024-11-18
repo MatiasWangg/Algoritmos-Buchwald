@@ -1,11 +1,10 @@
 package tp2
 
-import(
+import (
 	"tdas/diccionario"
 )
 
-
-func VerVisitantes(desde, hasta string, visitantes diccionario.Diccionario[string, bool]) {
+func VerVisitantes(desde, hasta string, visitantes diccionario.DiccionarioOrdenado[int, string]) {
 
 }
 
