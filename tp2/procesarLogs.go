@@ -9,7 +9,7 @@ import (
 	"tdas/diccionario"
 )
 
-const LAYOUT = "2015-05-17T10:05:00+00:00"
+const LAYOUT = "2006-01-02T15:04:05-07:00" //Layout dado por catedra
 
 /*
 Se procesaria cada linea del .log y tambien se detectaria si hay DoS
@@ -30,8 +30,13 @@ func AgregarArchivo(archivo string, visitantes diccionario.DiccionarioOrdenado[i
 		} else {
 			recursos.Guardar(log[3], 1)
 		}
-	}
 
+		ip := log[0]
+		ipNumerica := conversionIP(ip)
+		if !visitantes.Pertenece(ipNumerica){
+			visitantes.Guardar(ipNumerica, ip)
+		}
+	}
 	return nil
 }
 
