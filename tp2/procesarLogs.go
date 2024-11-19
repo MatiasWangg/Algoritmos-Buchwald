@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 	"tdas/diccionario"
 )
 
@@ -22,6 +23,9 @@ func AgregarArchivo(archivo string, visitantes diccionario.DiccionarioOrdenado[i
 	}
 	defer contenido.Close()
 	scanner := bufio.NewScanner(contenido)
+	//El hash IpRequeridas almacena las IPs como claves y 
+	//las listas de registros de tiempo como valores.
+	IpRequeridas := diccionario.CrearHash[string, []time.Time]()
 	for scanner.Scan() {
 		log := strings.Fields(scanner.Text())
 		if recursos.Pertenece(log[3]) {
@@ -36,6 +40,19 @@ func AgregarArchivo(archivo string, visitantes diccionario.DiccionarioOrdenado[i
 		if !visitantes.Pertenece(ipNumerica){
 			visitantes.Guardar(ipNumerica, ip)
 		}
+		
+		registroTiempo, err := time.Parse(LAYOUT, log[1])
+		if err != nil {
+			return fmt.Errorf("error al .Parse la fecha: %v", err)
+		}
+
+		if IpRequeridas.Pertenece(ip) {
+			nuevaLista := IpRequeridas.Obtener(ip)
+			IpRequeridas.Guardar(ip, append(nuevaLista, registroTiempo))
+		} else {
+			IpRequeridas.Guardar(ip, []time.Time{registroTiempo})
+		}
+		detectarDos(IpRequeridas.Obtener(ip), ip)
 	}
 	return nil
 }
@@ -51,4 +68,17 @@ func conversionIP(ip string) int {
 		res += n << (8 * (3 - i))
 	}
 	return res
+}
+
+func detectarDos(tiemposSolicitud []time.Time, ip string) {
+    if len(tiemposSolicitud) < 10 {
+        return
+    }
+
+    primerSolicitud := tiemposSolicitud[len(tiemposSolicitud)-10]  
+    ultimoSolicitud := tiemposSolicitud[len(tiemposSolicitud)-1]  
+
+    if ultimoSolicitud.Sub(primerSolicitud) <= 10*time.Second {
+        fmt.Printf("DoS: %s\n", ip)
+    }
 }
