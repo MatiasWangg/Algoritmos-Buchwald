@@ -6,8 +6,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 	"tdas/diccionario"
+	"time"
 )
 
 const LAYOUT = "2006-01-02T15:04:05-07:00" //Layout dado por catedra
@@ -23,7 +23,7 @@ func AgregarArchivo(archivo string, visitantes diccionario.DiccionarioOrdenado[i
 	}
 	defer contenido.Close()
 	scanner := bufio.NewScanner(contenido)
-	//El hash IpRequeridas almacena las IPs como claves y 
+	//El hash IpRequeridas almacena las IPs como claves y
 	//las listas de registros de tiempo como valores.
 	IpRequeridas := diccionario.CrearHash[string, []time.Time]()
 	for scanner.Scan() {
@@ -37,10 +37,10 @@ func AgregarArchivo(archivo string, visitantes diccionario.DiccionarioOrdenado[i
 
 		ip := log[0]
 		ipNumerica := conversionIP(ip)
-		if !visitantes.Pertenece(ipNumerica){
+		if !visitantes.Pertenece(ipNumerica) {
 			visitantes.Guardar(ipNumerica, ip)
 		}
-		
+
 		registroTiempo, err := time.Parse(LAYOUT, log[1])
 		if err != nil {
 			return fmt.Errorf("error al .Parse la fecha: %v", err)
@@ -71,14 +71,17 @@ func conversionIP(ip string) int {
 }
 
 func detectarDos(tiemposSolicitud []time.Time, ip string) {
-    if len(tiemposSolicitud) < 10 {
-        return
-    }
-
-    primerSolicitud := tiemposSolicitud[len(tiemposSolicitud)-10]  
-    ultimoSolicitud := tiemposSolicitud[len(tiemposSolicitud)-1]  
-
-    if ultimoSolicitud.Sub(primerSolicitud) <= 10*time.Second {
-        fmt.Printf("DoS: %s\n", ip)
-    }
+	//los cambios fueron para detectar DoS entre la primera y la ultima peticion,
+	//que se podrian omitir por no estar en la misma ventana de tiempo
+	//haciendo grupos de 5 en 5 nos aseguramos de revisar todas las posibilidades
+	cant := len(tiemposSolicitud)
+	if cant < 5 {
+		return
+	}
+	for i := 0; i < cant-5; i++ {
+		if tiemposSolicitud[i+4].Sub(tiemposSolicitud[i]) < 2*time.Second {
+			fmt.Printf("DoS: %s\n", ip)
+			return
+		}
+	}
 }
