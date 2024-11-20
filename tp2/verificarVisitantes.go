@@ -11,14 +11,12 @@ func VerVisitantes(desde, hasta string, visitantes diccionario.DiccionarioOrdena
 	ipHasta := conversionIP(hasta)
 
 	fmt.Println("Visitantes:")
-	iter := visitantes.Iterador()
+	iter := visitantes.IteradorRango(&ipDesde, &ipHasta)
 	for iter.HaySiguiente() {
-		ipNumerica, ip := iter.VerActual()
-		if ipNumerica >= ipDesde && ipNumerica <= ipHasta {
-			fmt.Printf("\t%s\n", ip)
-		}
-		iter.Siguiente()
+		_, ip := iter.VerActual()
+		fmt.Printf("\t%s\n", ip)
 	}
+	iter.Siguiente()
 }
 
 func VerMasVisitados(n int, recursos diccionario.Diccionario[string, int]) {
@@ -43,6 +41,6 @@ func VerMasVisitados(n int, recursos diccionario.Diccionario[string, int]) {
 	for i := 0; i < n && !heap.EstaVacia(); i++ {
 		clave := heap.Desencolar()
 		valor := recursos.Obtener(clave)
-		fmt.Printf("    %s - %d\n", clave, valor)
+		fmt.Printf("\t%s - %d\n", clave, valor)
 	}
 }
