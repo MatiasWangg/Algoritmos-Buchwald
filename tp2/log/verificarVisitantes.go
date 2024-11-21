@@ -10,7 +10,7 @@ func VerVisitantes(desde, hasta string, visitantes diccionario.DiccionarioOrdena
 	ipDesde := conversionIP(desde)
 	ipHasta := conversionIP(hasta)
 	if ipDesde == -1 || ipHasta == -1 {
-		return fmt.Errorf("Ip no valida")
+		return fmt.Errorf("ip no valida")
 	}
 	fmt.Println("Visitantes:")
 	iter := visitantes.IteradorRango(&ipDesde, &ipHasta)
@@ -28,9 +28,9 @@ func VerMasVisitados(n int, recursos diccionario.Diccionario[string, int]) error
 		valorA := recursos.Obtener(a)
 		valorB := recursos.Obtener(b)
 		if valorA > valorB {
-			return -1
-		} else if valorA < valorB {
 			return 1
+		} else if valorA < valorB {
+			return -1
 		}
 		return 0
 	})
