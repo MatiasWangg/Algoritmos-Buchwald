@@ -14,55 +14,64 @@ func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	//Estructuras para guardar los datos
-	visitantes := TDADicc.CrearABB[int, string](compararInts)
-	//visitantes debe ser un arbol para iterarlo con desde y hasta
-	//la clave es un int que sera la representacion numerica
-	//y el valor deberia guardar la ip
 	recursos := TDADicc.CrearHash[string, int]()
+
+	visitantes := TDADicc.CrearABB[int, string](func(a, b int) int {
+		if a < b {
+			return -1
+		} else if a > b {
+			return 1
+		}
+		return 0
+	})
 
 	for scanner.Scan() {
 		comando := scanner.Text()
 
-		err := procesarComando(comando, visitantes, recursos)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error en el comando ingresado")
+		resultado := procesarComando(comando, visitantes, recursos)
+		if resultado != nil {
+			// Imprimir error en stderr y finalizar el programa
+			fmt.Fprintf(os.Stderr, "Error en comando %s: %v\n", comando, resultado)
+
+		} else {
+			fmt.Println("OK")
 		}
 	}
 }
 
-// Pensaba hacer  una funcion con un switch para procesar cada comando recibido e ir
-// llamando a las diferentes funciones que estaran en otros archivos
+// procesarComando Recibe una linea, el diccionario recursos y el arbol de visitantes,procesa el comando recibido y devuelve un error si es necesario
 func procesarComando(comando string, visitantes TDADicc.DiccionarioOrdenado[int, string], recursos TDADicc.Diccionario[string, int]) error {
 	partes := strings.Fields(comando)
 
+	// Validar que el comando no esté vacío
+	if len(partes) == 0 {
+		return fmt.Errorf("comando no reconocido")
+	}
+
+	// Switch para procesar los comandos
 	switch partes[0] {
 	case "agregar_archivo":
+		if len(partes) != 2 {
+			return fmt.Errorf("agregar_archivo")
+		}
 		archivo := partes[1]
-		//funcion que trabaja con los log (parametros provisorios)
 		return LOG.AgregarArchivo(archivo, visitantes, recursos)
 	case "ver_visitantes":
-		desde, hasta := partes[1], partes[2]
-		//Lo mismo aca con los parametros
-		LOG.VerVisitantes(desde, hasta, visitantes)
-	case "ver_mas_visitados":
-		n, err := strconv.Atoi(partes[1])
-		//Lo mismo aca con los parametros
-		if err != nil {
-			return fmt.Errorf("error en ver_mas_visitados")
+		if len(partes) != 3 {
+			return fmt.Errorf("ver_visitantes")
 		}
-		LOG.VerMasVisitados(n, recursos)
+		desde, hasta := partes[1], partes[2]
+		return LOG.VerVisitantes(desde, hasta, visitantes)
+	case "ver_mas_visitados":
+		if len(partes) != 2 {
+			return fmt.Errorf("ver_mas_visitados")
+		}
+		n, err := strconv.Atoi(partes[1])
+		if err != nil {
+			return fmt.Errorf("ver_mas_visitados")
+		}
+		return LOG.VerMasVisitados(n, recursos)
 	default:
 		return fmt.Errorf("comando no reconocido")
 	}
-	fmt.Println("OK")
-	return nil
-}
-
-func compararInts(a, b int) int {
-	if a < b {
-		return -1
-	} else if a > b {
-		return 1
-	}
-	return 0
 }

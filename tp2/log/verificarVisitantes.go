@@ -6,20 +6,23 @@ import (
 	"tdas/diccionario"
 )
 
-func VerVisitantes(desde, hasta string, visitantes diccionario.DiccionarioOrdenado[int, string]) {
+func VerVisitantes(desde, hasta string, visitantes diccionario.DiccionarioOrdenado[int, string]) error {
 	ipDesde := conversionIP(desde)
 	ipHasta := conversionIP(hasta)
-
+	if ipDesde == -1 || ipHasta == -1 {
+		return fmt.Errorf("Ip no valida")
+	}
 	fmt.Println("Visitantes:")
 	iter := visitantes.IteradorRango(&ipDesde, &ipHasta)
 	for iter.HaySiguiente() {
 		_, ip := iter.VerActual()
 		fmt.Printf("\t%s\n", ip)
+		iter.Siguiente()
 	}
-	iter.Siguiente()
+	return nil
 }
 
-func VerMasVisitados(n int, recursos diccionario.Diccionario[string, int]) {
+func VerMasVisitados(n int, recursos diccionario.Diccionario[string, int]) error {
 
 	heap := cola_prioridad.CrearHeap(func(a, b string) int {
 		valorA := recursos.Obtener(a)
@@ -43,4 +46,5 @@ func VerMasVisitados(n int, recursos diccionario.Diccionario[string, int]) {
 		valor := recursos.Obtener(clave)
 		fmt.Printf("\t%s - %d\n", clave, valor)
 	}
+	return nil
 }

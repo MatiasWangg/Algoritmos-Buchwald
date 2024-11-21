@@ -11,13 +11,15 @@ import (
 )
 
 const LAYOUT = "2006-01-02T15:04:05-07:00" //Layout dado por catedra
+const RUTA = "../pruebas_analog/"
 
 /*
 Se procesaria cada linea del .log y tambien se detectaria si hay DoS
 */
 
 func AgregarArchivo(archivo string, visitantes diccionario.DiccionarioOrdenado[int, string], recursos diccionario.Diccionario[string, int]) error {
-	contenido, err := os.Open(archivo)
+	ruta := fmt.Sprintf("%s%s", RUTA, archivo)
+	contenido, err := os.Open(ruta)
 	if err != nil {
 		return fmt.Errorf("error al leer el archivo")
 	}
@@ -37,6 +39,9 @@ func AgregarArchivo(archivo string, visitantes diccionario.DiccionarioOrdenado[i
 
 		ip := log[0]
 		ipNumerica := conversionIP(ip)
+		if ipNumerica == -1 {
+			return fmt.Errorf("IP no valida")
+		}
 		if !visitantes.Pertenece(ipNumerica) {
 			visitantes.Guardar(ipNumerica, ip)
 		}
@@ -63,7 +68,7 @@ func conversionIP(ip string) int {
 	for i, e := range valores {
 		n, err := strconv.Atoi(e)
 		if err != nil {
-			return 0
+			return -1
 		}
 		res += n << (8 * (3 - i))
 	}
@@ -71,14 +76,15 @@ func conversionIP(ip string) int {
 }
 
 func detectarDos(tiemposSolicitud []time.Time, ip string) {
-	//los cambios fueron para detectar DoS entre la primera y la ultima peticion,
-	//que se podrian omitir por no estar en la misma ventana de tiempo
-	//haciendo grupos de 5 en 5 nos aseguramos de revisar todas las posibilidades
+	// Los cambios fueron para detectar DoS entre la primera y la ultima petición,
+	// que se podrían omitir por no estar en la misma ventana de tiempo.
+	// Haciendo grupos de 5 en 5, nos aseguramos de revisar todas las posibilidades.
 	cant := len(tiemposSolicitud)
 	if cant < 5 {
 		return
 	}
-	for i := 0; i < cant-5; i++ {
+
+	for i := 0; i <= cant-5; i++ {
 		if tiemposSolicitud[i+4].Sub(tiemposSolicitud[i]) < 2*time.Second {
 			fmt.Printf("DoS: %s\n", ip)
 			return
