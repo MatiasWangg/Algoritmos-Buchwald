@@ -28,9 +28,9 @@ func VerMasVisitados(n int, recursos diccionario.Diccionario[string, int]) error
 		valorA := recursos.Obtener(a)
 		valorB := recursos.Obtener(b)
 		if valorA > valorB {
-			return 1
-		} else if valorA < valorB {
 			return -1
+		} else if valorA < valorB {
+			return 1
 		}
 		return 0
 	})
