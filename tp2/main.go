@@ -30,7 +30,7 @@ func main() {
 
 		resultado := procesarComando(comando, visitantes, recursos)
 		if resultado != nil {
-			// Imprimir error en stderr y finalizar el programa
+			// Imprimir error en stderr
 			fmt.Fprintf(os.Stderr, "Error en comando %s\n", comando)
 
 		} else {

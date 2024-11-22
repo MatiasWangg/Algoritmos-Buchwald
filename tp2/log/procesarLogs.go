@@ -57,8 +57,9 @@ func AgregarArchivo(archivo string, visitantes diccionario.DiccionarioOrdenado[i
 	//Deteccion e Impresion de las DoS
 	for iter := visitantes.Iterador(); iter.HaySiguiente(); iter.Siguiente() {
 		_, dato := iter.VerActual()
-		if detectarDos(IpRequeridas.Obtener(dato)) {
+		if IpRequeridas.Pertenece(dato) && detectarDos(IpRequeridas.Obtener(dato)) {
 			fmt.Printf("DoS: %s\n", dato)
+
 		}
 	}
 	return nil
