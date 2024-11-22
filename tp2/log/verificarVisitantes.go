@@ -1,4 +1,4 @@
-package tp2
+package log
 
 import (
 	"fmt"

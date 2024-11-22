@@ -1,4 +1,4 @@
-package tp2
+package log
 
 import (
 	"bufio"
@@ -11,7 +11,7 @@ import (
 )
 
 const LAYOUT = "2006-01-02T15:04:05-07:00" //Layout dado por catedra
-const RUTA = "../pruebas_analog/"
+const RUTA = "pruebas_analog/"
 
 /*
 Se procesaria cada linea del .log y tambien se detectaria si hay DoS
@@ -24,31 +24,24 @@ func AgregarArchivo(archivo string, visitantes diccionario.DiccionarioOrdenado[i
 		return fmt.Errorf("error al leer el archivo")
 	}
 	defer contenido.Close()
+
 	scanner := bufio.NewScanner(contenido)
-	//El hash IpRequeridas almacena las IPs como claves y
-	//las listas de registros de tiempo como valores.
+
+	//ipRequeridas tiene como dato las ip y como valor una lista de sus tiempos
 	IpRequeridas := diccionario.CrearHash[string, []time.Time]()
-	//Para las ips detectadas
-	detectadas := diccionario.CrearHash[string, bool]()
+
 	for scanner.Scan() {
 		log := strings.Fields(scanner.Text())
-		if recursos.Pertenece(log[3]) {
-			n := recursos.Obtener(log[3])
-			recursos.Guardar(log[3], n+1)
-		} else {
-			recursos.Guardar(log[3], 1)
-		}
 
 		ip := log[0]
-		ipNumerica := conversionIP(ip)
-		if ipNumerica == -1 {
-			return fmt.Errorf("IP no valida")
-		}
-		if !visitantes.Pertenece(ipNumerica) {
-			visitantes.Guardar(ipNumerica, ip)
-		}
+		sitio := log[3]
+		t := log[1]
 
-		registroTiempo, err := time.Parse(LAYOUT, log[1])
+		//mantenimiento de visitantes y recursos
+		mantenimiento(ip, sitio, visitantes, recursos)
+
+		//Guardar los tiempos para cada ip
+		registroTiempo, err := time.Parse(LAYOUT, t)
 		if err != nil {
 			return fmt.Errorf("error al .Parse la fecha: %v", err)
 		}
@@ -59,7 +52,14 @@ func AgregarArchivo(archivo string, visitantes diccionario.DiccionarioOrdenado[i
 		} else {
 			IpRequeridas.Guardar(ip, []time.Time{registroTiempo})
 		}
-		detectarDos(IpRequeridas.Obtener(ip), ip, detectadas)
+
+	}
+	//Deteccion e Impresion de las DoS
+	for iter := visitantes.Iterador(); iter.HaySiguiente(); iter.Siguiente() {
+		_, dato := iter.VerActual()
+		if detectarDos(IpRequeridas.Obtener(dato)) {
+			fmt.Printf("DoS: %s\n", dato)
+		}
 	}
 	return nil
 }
@@ -77,20 +77,35 @@ func conversionIP(ip string) int {
 	return res
 }
 
-func detectarDos(tiemposSolicitud []time.Time, ip string, detectadas diccionario.Diccionario[string, bool]) {
+func detectarDos(tiemposSolicitud []time.Time) bool {
 	// Verificar si ya se detectó DoS para esta IP
-	if detectadas.Pertenece(ip) {
-		return
-	}
-
 	cant := len(tiemposSolicitud)
-	for i := 0; i <= cant-5; i++ {
-		if tiemposSolicitud[i+4].Sub(tiemposSolicitud[i]) < 2*time.Second {
-			fmt.Printf("DoS: %s\n", ip)
-			// Marcar IP como detectada
-			detectadas.Guardar(ip, true) 
-			return
-		}
+	if cant < 5 {
+		return false
 	}
+	inicio := 0
+	for fin := 4; fin < cant; fin++ {
+		if tiemposSolicitud[fin].Sub(tiemposSolicitud[inicio]) < 2*time.Second {
+			return true
+		}
+		inicio++
+	}
+	return false
 }
 
+func mantenimiento(ip, sitio string, visitantes diccionario.DiccionarioOrdenado[int, string], recursos diccionario.Diccionario[string, int]) {
+	if recursos.Pertenece(sitio) {
+		n := recursos.Obtener(sitio)
+		recursos.Guardar(sitio, n+1)
+	} else {
+		recursos.Guardar(sitio, 1)
+	}
+
+	ipNumerica := conversionIP(ip)
+	if ipNumerica == -1 {
+		return
+	}
+	if !visitantes.Pertenece(ipNumerica) {
+		visitantes.Guardar(ipNumerica, ip)
+	}
+}

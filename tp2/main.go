@@ -31,7 +31,7 @@ func main() {
 		resultado := procesarComando(comando, visitantes, recursos)
 		if resultado != nil {
 			// Imprimir error en stderr y finalizar el programa
-			fmt.Fprintf(os.Stderr, "Error en comando %s: %v\n", comando, resultado)
+			fmt.Fprintf(os.Stderr, "Error en comando %s\n", comando)
 
 		} else {
 			fmt.Println("OK")
@@ -56,6 +56,7 @@ func procesarComando(comando string, visitantes TDADicc.DiccionarioOrdenado[int,
 		}
 		archivo := partes[1]
 		return LOG.AgregarArchivo(archivo, visitantes, recursos)
+
 	case "ver_visitantes":
 		if len(partes) != 3 {
 			return fmt.Errorf("ver_visitantes")
