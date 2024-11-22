@@ -28,6 +28,8 @@ func AgregarArchivo(archivo string, visitantes diccionario.DiccionarioOrdenado[i
 	//El hash IpRequeridas almacena las IPs como claves y
 	//las listas de registros de tiempo como valores.
 	IpRequeridas := diccionario.CrearHash[string, []time.Time]()
+	//Para las ips detectadas
+	detectadas := diccionario.CrearHash[string, bool]()
 	for scanner.Scan() {
 		log := strings.Fields(scanner.Text())
 		if recursos.Pertenece(log[3]) {
@@ -57,7 +59,7 @@ func AgregarArchivo(archivo string, visitantes diccionario.DiccionarioOrdenado[i
 		} else {
 			IpRequeridas.Guardar(ip, []time.Time{registroTiempo})
 		}
-		detectarDos(IpRequeridas.Obtener(ip), ip)
+		detectarDos(IpRequeridas.Obtener(ip), ip, detectadas)
 	}
 	return nil
 }
@@ -75,19 +77,20 @@ func conversionIP(ip string) int {
 	return res
 }
 
-func detectarDos(tiemposSolicitud []time.Time, ip string) {
-	// Los cambios fueron para detectar DoS entre la primera y la ultima petición,
-	// que se podrían omitir por no estar en la misma ventana de tiempo.
-	// Haciendo grupos de 5 en 5, nos aseguramos de revisar todas las posibilidades.
-	cant := len(tiemposSolicitud)
-	if cant < 5 {
+func detectarDos(tiemposSolicitud []time.Time, ip string, detectadas diccionario.Diccionario[string, bool]) {
+	// Verificar si ya se detectó DoS para esta IP
+	if detectadas.Pertenece(ip) {
 		return
 	}
 
+	cant := len(tiemposSolicitud)
 	for i := 0; i <= cant-5; i++ {
 		if tiemposSolicitud[i+4].Sub(tiemposSolicitud[i]) < 2*time.Second {
 			fmt.Printf("DoS: %s\n", ip)
+			// Marcar IP como detectada
+			detectadas.Guardar(ip, true) 
 			return
 		}
 	}
 }
+
