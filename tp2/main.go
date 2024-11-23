@@ -13,7 +13,6 @@ import (
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 
-	//Estructuras para guardar los datos
 	recursos := TDADicc.CrearHash[string, int]()
 
 	visitantes := TDADicc.CrearABB[int, string](func(a, b int) int {
@@ -30,8 +29,7 @@ func main() {
 
 		resultado := procesarComando(comando, visitantes, recursos)
 		if resultado != nil {
-			// Imprimir error en stderr
-			fmt.Fprintf(os.Stderr, "Error en comando %s\n", comando)
+			fmt.Fprintf(os.Stderr, "Error en comando %s\n", resultado)
 
 		} else {
 			fmt.Println("OK")
@@ -39,16 +37,13 @@ func main() {
 	}
 }
 
-// procesarComando Recibe una linea, el diccionario recursos y el arbol de visitantes,procesa el comando recibido y devuelve un error si es necesario
 func procesarComando(comando string, visitantes TDADicc.DiccionarioOrdenado[int, string], recursos TDADicc.Diccionario[string, int]) error {
 	partes := strings.Fields(comando)
 
-	// Validar que el comando no esté vacío
 	if len(partes) == 0 {
 		return fmt.Errorf("comando no reconocido")
 	}
 
-	// Switch para procesar los comandos
 	switch partes[0] {
 	case "agregar_archivo":
 		if len(partes) != 2 {
