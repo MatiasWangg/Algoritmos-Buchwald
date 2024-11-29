@@ -2,11 +2,11 @@ package log
 
 import (
 	"fmt"
-	"tdas/cola_prioridad"
-	"tdas/diccionario"
+	TDAHeap "tdas/cola_prioridad"
+	TDADicc "tdas/diccionario"
 )
 
-func VerVisitantes(desde, hasta string, visitantes diccionario.DiccionarioOrdenado[int, string]) error {
+func VerVisitantes(desde, hasta string, visitantes TDADicc.DiccionarioOrdenado[int, string]) error {
 	ipDesde := conversionIP(desde)
 	ipHasta := conversionIP(hasta)
 	if ipDesde == -1 || ipHasta == -1 {
@@ -22,29 +22,31 @@ func VerVisitantes(desde, hasta string, visitantes diccionario.DiccionarioOrdena
 	return nil
 }
 
-func VerMasVisitados(n int, recursos diccionario.Diccionario[string, int]) error {
+func VerMasVisitados(n int, recursos TDADicc.Diccionario[string, int]) error {
 
-	heap := cola_prioridad.CrearHeap(func(a, b string) int {
-		valorA := recursos.Obtener(a)
-		valorB := recursos.Obtener(b)
-		if valorA > valorB {
-			return 1
-		} else if valorA < valorB {
-			return -1
-		}
-		return 0
-	})
-
-	recursos.Iterar(func(k string, v int) bool {
-		heap.Encolar(k)
-		return true
-	})
-
+	sitios := calcularMasVisitados(n, recursos)
 	fmt.Println("Sitios más visitados:")
-	for i := 0; i < n && !heap.EstaVacia(); i++ {
-		clave := heap.Desencolar()
-		valor := recursos.Obtener(clave)
-		fmt.Printf("\t%s - %d\n", clave, valor)
+	for _, i := range sitios {
+		fmt.Printf("\t%s - %d\n", i, recursos.Obtener(i))
 	}
 	return nil
+}
+
+func calcularMasVisitados(n int, recursos TDADicc.Diccionario[string, int]) []string {
+	sitios := make([]string, 0, recursos.Cantidad())
+	resultado := make([]string, 0, n)
+	recursos.Iterar(func(clave string, valor int) bool {
+		sitios = append(sitios, clave)
+		return true
+	})
+	heap := TDAHeap.CrearHeapArr(sitios, func(a, b string) int {
+		valorA := recursos.Obtener(a)
+		valorB := recursos.Obtener(b)
+		return valorB - valorA
+	})
+
+	for i := 0; i < n && !heap.EstaVacia(); i++ {
+		resultado = append(resultado, heap.Desencolar())
+	}
+	return resultado
 }
