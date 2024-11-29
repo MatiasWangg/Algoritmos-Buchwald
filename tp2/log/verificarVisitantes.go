@@ -22,9 +22,24 @@ func VerVisitantes(desde, hasta string, visitantes diccionario.DiccionarioOrdena
 	return nil
 }
 
-func VerMasVisitados(n int, recursos diccionario.Diccionario[string, int]) error {
+func VerMasVisitados(n int, recursos diccionario.Diccionario[string, int]) {
 
-	heap := cola_prioridad.CrearHeap(func(a, b string) int {
+	sitios := calcularMasVisitados(n, recursos)
+	fmt.Println("Sitios más visitados:")
+	for _, e := range sitios {
+		fmt.Printf("\t%s - %d\n", e, recursos.Obtener(e))
+	}
+}
+
+func calcularMasVisitados(n int, recursos diccionario.Diccionario[string, int]) []string {
+
+	sitios := make([]string, 0, recursos.Cantidad())
+	recursos.Iterar(func(k string, v int) bool {
+		sitios = append(sitios, k)
+		return true
+	})
+
+	heap := cola_prioridad.CrearHeapArr(sitios, func(a, b string) int {
 		valorA := recursos.Obtener(a)
 		valorB := recursos.Obtener(b)
 		if valorA > valorB {
@@ -34,17 +49,9 @@ func VerMasVisitados(n int, recursos diccionario.Diccionario[string, int]) error
 		}
 		return 0
 	})
-
-	recursos.Iterar(func(k string, v int) bool {
-		heap.Encolar(k)
-		return true
-	})
-
-	fmt.Println("Sitios más visitados:")
 	for i := 0; i < n && !heap.EstaVacia(); i++ {
-		clave := heap.Desencolar()
-		valor := recursos.Obtener(clave)
-		fmt.Printf("\t%s - %d\n", clave, valor)
+		sitio := heap.Desencolar()
+		sitios[i] = sitio
 	}
-	return nil
+	return sitios
 }
