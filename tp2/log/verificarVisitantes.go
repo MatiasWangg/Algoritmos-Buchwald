@@ -23,7 +23,6 @@ func VerVisitantes(desde, hasta string, visitantes TDADicc.DiccionarioOrdenado[i
 }
 
 func VerMasVisitados(n int, recursos TDADicc.Diccionario[string, int]) error {
-
 	sitios := calcularMasVisitados(n, recursos)
 	fmt.Println("Sitios más visitados:")
 	for _, i := range sitios {
@@ -33,20 +32,30 @@ func VerMasVisitados(n int, recursos TDADicc.Diccionario[string, int]) error {
 }
 
 func calcularMasVisitados(n int, recursos TDADicc.Diccionario[string, int]) []string {
-	sitios := make([]string, 0, recursos.Cantidad())
-	resultado := make([]string, 0, n)
-	recursos.Iterar(func(clave string, valor int) bool {
-		sitios = append(sitios, clave)
-		return true
-	})
-	heap := TDAHeap.CrearHeapArr(sitios, func(a, b string) int {
+	heap := TDAHeap.CrearHeap(func(a, b string) int {
 		valorA := recursos.Obtener(a)
 		valorB := recursos.Obtener(b)
 		return valorB - valorA
 	})
 
-	for i := 0; i < n && !heap.EstaVacia(); i++ {
+	recursos.Iterar(func(clave string, valor int) bool {
+		if heap.Cantidad() < n {
+			heap.Encolar(clave)
+		} else if valor > recursos.Obtener(heap.VerMax()) {
+			heap.Desencolar()
+			heap.Encolar(clave)
+		}
+		return true
+	})
+
+	resultado := make([]string, 0, heap.Cantidad())
+	for !heap.EstaVacia() {
 		resultado = append(resultado, heap.Desencolar())
 	}
+
+	for i, j := 0, len(resultado)-1; i < j; i, j = i+1, j-1 {
+		resultado[i], resultado[j] = resultado[j], resultado[i]
+	}
+
 	return resultado
 }
