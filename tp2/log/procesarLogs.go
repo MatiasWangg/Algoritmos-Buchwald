@@ -44,14 +44,25 @@ func AgregarArchivo(archivo string, visitantes diccionario.DiccionarioOrdenado[i
 			IpRequeridas.Guardar(ip, []time.Time{registroTiempo})
 		}
 	}
+
+	DoSIPs := verificarDoS(visitantes, IpRequeridas)
+
+	for _, ip := range DoSIPs {
+		fmt.Printf("DoS: %s\n", ip)
+	}
+
+	return nil
+}
+
+func verificarDoS(visitantes diccionario.DiccionarioOrdenado[int, string], IpRequeridas diccionario.Diccionario[string, []time.Time]) []string {
+	DoSIPs := []string{}
 	for iter := visitantes.Iterador(); iter.HaySiguiente(); iter.Siguiente() {
 		_, dato := iter.VerActual()
 		if IpRequeridas.Pertenece(dato) && detectarDos(IpRequeridas.Obtener(dato)) {
-			fmt.Printf("DoS: %s\n", dato)
-
+			DoSIPs = append(DoSIPs, dato)
 		}
 	}
-	return nil
+	return DoSIPs
 }
 
 func conversionIP(ip string) int {
