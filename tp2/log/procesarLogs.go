@@ -22,6 +22,7 @@ func AgregarArchivo(archivo string, visitantes diccionario.DiccionarioOrdenado[i
 	scanner := bufio.NewScanner(contenido)
 
 	IpRequeridas := diccionario.CrearHash[string, []time.Time]()
+	ipVistas := diccionario.CrearHash[string, bool]()
 
 	for scanner.Scan() {
 		log := strings.Fields(scanner.Text())
@@ -43,15 +44,16 @@ func AgregarArchivo(archivo string, visitantes diccionario.DiccionarioOrdenado[i
 		} else {
 			IpRequeridas.Guardar(ip, []time.Time{registroTiempo})
 		}
-
+		ipVistas.Guardar(ip, true)
 	}
-	for iter := visitantes.Iterador(); iter.HaySiguiente(); iter.Siguiente() {
-		_, dato := iter.VerActual()
-		if IpRequeridas.Pertenece(dato) && detectarDos(IpRequeridas.Obtener(dato)) {
-			fmt.Printf("DoS: %s\n", dato)
 
-		}
+
+	DoSIPs := ComprobarDoSParaIPs(ipVistas, IpRequeridas)
+
+	for _, ip := range DoSIPs {
+		fmt.Printf("DoS: %s\n", ip)
 	}
+
 	return nil
 }
 
@@ -66,6 +68,18 @@ func conversionIP(ip string) int {
 		res += n << (8 * (3 - i))
 	}
 	return res
+}
+
+func ComprobarDoSParaIPs(ipVistas diccionario.Diccionario[string, bool], IpRequeridas diccionario.Diccionario[string, []time.Time]) []string {
+	DoSIPs := []string{}
+	for iter := ipVistas.Iterador(); iter.HaySiguiente(); iter.Siguiente() {
+		ip, _ := iter.VerActual()  // Solo necesitamos la clave (IP)
+		tiemposSolicitud := IpRequeridas.Obtener(ip)
+		if detectarDos(tiemposSolicitud) {
+			DoSIPs = append(DoSIPs, ip)
+		}
+	}
+	return DoSIPs
 }
 
 func detectarDos(tiemposSolicitud []time.Time) bool {
