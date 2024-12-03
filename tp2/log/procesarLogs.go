@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"tdas/cola_prioridad"
 	"tdas/diccionario"
 	"time"
 )
@@ -31,35 +32,25 @@ func AgregarArchivo(archivo string, visitantes diccionario.DiccionarioOrdenado[i
 		t := log[1]
 
 		mantenimiento(ip, sitio, visitantes, recursos)
+		registrarTiempo(ip, t, IpRequeridas)
 
-		registroTiempo, err := time.Parse(LAYOUT, t)
-		if err != nil {
-			return fmt.Errorf("error al .Parse la fecha: %v", err)
-		}
-
-		if IpRequeridas.Pertenece(ip) {
-			nuevaLista := IpRequeridas.Obtener(ip)
-			IpRequeridas.Guardar(ip, append(nuevaLista, registroTiempo))
-		} else {
-			IpRequeridas.Guardar(ip, []time.Time{registroTiempo})
-		}
 	}
 
-	DoSIPs := verificarDoS(visitantes, IpRequeridas)
+	DoSIPs := verificarDoS(IpRequeridas)
 
-	for _, ip := range DoSIPs {
-		fmt.Printf("DoS: %s\n", ip)
-	}
-
+	cola_prioridad.HeapSort(DoSIPs, func(a, b string) int {
+		return conversionIP(a) - conversionIP(b)
+	})
+	imprimirDoS(DoSIPs)
 	return nil
 }
 
-func verificarDoS(visitantes diccionario.DiccionarioOrdenado[int, string], IpRequeridas diccionario.Diccionario[string, []time.Time]) []string {
+func verificarDoS(IpRequeridas diccionario.Diccionario[string, []time.Time]) []string {
 	DoSIPs := []string{}
-	for iter := visitantes.Iterador(); iter.HaySiguiente(); iter.Siguiente() {
-		_, dato := iter.VerActual()
-		if IpRequeridas.Pertenece(dato) && detectarDos(IpRequeridas.Obtener(dato)) {
-			DoSIPs = append(DoSIPs, dato)
+	for iter := IpRequeridas.Iterador(); iter.HaySiguiente(); iter.Siguiente() {
+		clave, tiempos := iter.VerActual()
+		if IpRequeridas.Pertenece(clave) && detectarDos(tiempos) {
+			DoSIPs = append(DoSIPs, clave)
 		}
 	}
 	return DoSIPs
@@ -107,5 +98,22 @@ func mantenimiento(ip, sitio string, visitantes diccionario.DiccionarioOrdenado[
 	}
 	if !visitantes.Pertenece(ipNumerica) {
 		visitantes.Guardar(ipNumerica, ip)
+	}
+}
+
+func imprimirDoS(DoSIPs []string) {
+	for _, ip := range DoSIPs {
+		fmt.Printf("DoS: %s\n", ip)
+	}
+}
+
+func registrarTiempo(ip, t string, IpRequeridas diccionario.Diccionario[string, []time.Time]) {
+	registroTiempo, _ := time.Parse(LAYOUT, t)
+
+	if IpRequeridas.Pertenece(ip) {
+		nuevaLista := IpRequeridas.Obtener(ip)
+		IpRequeridas.Guardar(ip, append(nuevaLista, registroTiempo))
+	} else {
+		IpRequeridas.Guardar(ip, []time.Time{registroTiempo})
 	}
 }
