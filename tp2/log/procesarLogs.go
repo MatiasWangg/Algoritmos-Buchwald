@@ -9,11 +9,12 @@ import (
 	"tdas/cola_prioridad"
 	"tdas/diccionario"
 	"time"
+	servidor "tp2/TDAServidor"
 )
 
 const LAYOUT = "2006-01-02T15:04:05-07:00"
 
-func AgregarArchivo(archivo string, visitantes diccionario.DiccionarioOrdenado[int, string], recursos diccionario.Diccionario[string, int]) error {
+func AgregarArchivo(archivo string, servidor *servidor.Servidor) error {
 	contenido, err := os.Open(archivo)
 	if err != nil {
 		return fmt.Errorf("agregar_archivo")
@@ -31,7 +32,7 @@ func AgregarArchivo(archivo string, visitantes diccionario.DiccionarioOrdenado[i
 		sitio := log[3]
 		t := log[1]
 
-		mantenimiento(ip, sitio, visitantes, recursos)
+		servidor.Mantenimiento(ip, sitio)
 		registrarTiempo(ip, t, IpRequeridas)
 
 	}
