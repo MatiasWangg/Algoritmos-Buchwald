@@ -6,13 +6,13 @@ import (
 )
 
 type IP struct {
-	valores []int
+	valores [4]int
 }
 
 func CrearIp(ip string) *IP {
 	nuevaip := new(IP)
 	numeros := strings.Split(ip, ".")
-	nuevaip.valores = make([]int, 0, 4)
+	nuevaip.valores = [4]int{}
 	for i, e := range numeros {
 		nuevaip.valores[i], _ = strconv.Atoi(e)
 	}
