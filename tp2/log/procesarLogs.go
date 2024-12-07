@@ -6,7 +6,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"tdas/cola_prioridad"
 	"tdas/diccionario"
 	"time"
 	servidor "tp2/TDAServidor"
@@ -34,15 +33,14 @@ func AgregarArchivo(archivo string, servidor *servidor.Servidor) error {
 
 		servidor.Mantenimiento(ip, sitio)
 		registrarTiempo(ip, t, IpRequeridas)
-
 	}
 
 	DoSIPs := verificarDoS(IpRequeridas)
 
-	cola_prioridad.HeapSort(DoSIPs, func(a, b string) int {
-		return conversionIP(a) - conversionIP(b)
-	})
-	imprimirDoS(DoSIPs)
+	DoSIPsOrdenadas := radixSort(DoSIPs)
+
+	imprimirDoS(DoSIPsOrdenadas)
+
 	return nil
 }
 
@@ -117,4 +115,52 @@ func registrarTiempo(ip, t string, IpRequeridas diccionario.Diccionario[string, 
 	} else {
 		IpRequeridas.Guardar(ip, []time.Time{registroTiempo})
 	}
+}
+
+func radixSort(ips []string) []string {
+	ordenadoPorOcteto4 := counting(ips, func(ip string) int {
+		octetos := strings.Split(ip, ".")
+		valor, _ := strconv.Atoi(octetos[3])
+		return valor
+	})
+
+	ordenadoPorOcteto3 := counting(ordenadoPorOcteto4, func(ip string) int {
+		octetos := strings.Split(ip, ".")
+		valor, _ := strconv.Atoi(octetos[2])
+		return valor
+	})
+
+	ordenadoPorOcteto2 := counting(ordenadoPorOcteto3, func(ip string) int {
+		octetos := strings.Split(ip, ".")
+		valor, _ := strconv.Atoi(octetos[1])
+		return valor
+	})
+
+	ordenadoPorOcteto1 := counting(ordenadoPorOcteto2, func(ip string) int {
+		octetos := strings.Split(ip, ".")
+		valor, _ := strconv.Atoi(octetos[0])
+		return valor
+	})
+
+	return ordenadoPorOcteto1
+}
+
+func counting(arr []string, criterio func(string) int) []string {
+	freq := make([]int, 256)
+	for _, ip := range arr {
+		freq[criterio(ip)] += 1
+	}
+
+	inicios := make([]int, 256)
+	for i := 1; i < 256; i++ {
+		inicios[i] = inicios[i-1] + freq[i-1]
+	}
+
+	ordenado := make([]string, len(arr))
+	for _, ip := range arr {
+		indice := criterio(ip)
+		ordenado[inicios[indice]] = ip
+		inicios[indice] += 1
+	}
+	return ordenado
 }
