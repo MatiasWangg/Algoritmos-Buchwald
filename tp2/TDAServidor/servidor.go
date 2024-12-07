@@ -1,7 +1,6 @@
 package servidor
 
 import (
-	"fmt"
 	"tdas/cola_prioridad"
 	"tdas/diccionario"
 	"tp2/Ip"
@@ -65,18 +64,9 @@ func (server *Servidor) Mantenimiento(ip, sitio string) {
 
 }
 
-func (server *Servidor) MostrarSitios(sitios []string) {
-	fmt.Println("Sitios más visitados:")
-	for _, i := range sitios {
-		fmt.Printf("\t%s - %d\n", i, server.recursos.Obtener(i))
+func (server *Servidor) ObtenerCantidadVisitas(sitio string) int {
+	if server.recursos.Pertenece(sitio) {
+		return server.recursos.Obtener(sitio)
 	}
+	return 0
 }
-
-func (server *Servidor) MostrarVisitantes(visitantes []string) {
-	fmt.Println("Visitantes:")
-	for _, ip := range visitantes {
-		fmt.Printf("\t%s\n", ip)
-	}
-}
-
-//fmt.Printf("\t%s\n", ip)
