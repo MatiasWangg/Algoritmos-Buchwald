@@ -1,50 +1,17 @@
 package log
 
 import (
-	"fmt"
-	TDAHeap "tdas/cola_prioridad"
-	TDADicc "tdas/diccionario"
+	servidor "tp2/TDAServidor"
 )
 
-func VerVisitantes(desde, hasta string, visitantes TDADicc.DiccionarioOrdenado[int, string]) error {
-	ipDesde := conversionIP(desde)
-	ipHasta := conversionIP(hasta)
-	if ipDesde == -1 || ipHasta == -1 {
-		return fmt.Errorf("ip no valida")
-	}
-	fmt.Println("Visitantes:")
-	iter := visitantes.IteradorRango(&ipDesde, &ipHasta)
-	for iter.HaySiguiente() {
-		_, ip := iter.VerActual()
-		fmt.Printf("\t%s\n", ip)
-		iter.Siguiente()
-	}
+func VerVisitantes(desde, hasta string, servidor *servidor.Servidor) error {
+	visitantes := servidor.ObtenerVisitantes(desde, hasta)
+	servidor.MostrarVisitantes(visitantes)
 	return nil
 }
 
-func VerMasVisitados(n int, recursos TDADicc.Diccionario[string, int]) error {
-	sitios := calcularMasVisitados(n, recursos)
-	fmt.Println("Sitios más visitados:")
-	for _, i := range sitios {
-		fmt.Printf("\t%s - %d\n", i, recursos.Obtener(i))
-	}
+func VerMasVisitados(n int, servidor *servidor.Servidor) error {
+	sitios := servidor.CalcularMasVisitados(n)
+	servidor.MostrarSitios(sitios)
 	return nil
-}
-
-func calcularMasVisitados(n int, recursos TDADicc.Diccionario[string, int]) []string {
-	sitios := make([]string, 0, recursos.Cantidad())
-
-	recursos.Iterar(func(clave string, valor int) bool {
-		sitios = append(sitios, clave)
-		return true
-	})
-
-	heap := TDAHeap.CrearHeapArr(sitios, func(a, b string) int {
-		return recursos.Obtener(a) - recursos.Obtener(b)
-	})
-	resultado := make([]string, 0, n)
-	for i := 0; i < n && !heap.EstaVacia(); i++ {
-		resultado = append(resultado, heap.Desencolar())
-	}
-	return resultado
 }

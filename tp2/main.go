@@ -6,33 +6,24 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	TDADicc "tdas/diccionario"
+	servidor "tp2/TDAServidor"
 	LOG "tp2/log"
 )
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 
-	recursos := TDADicc.CrearHash[string, int]()
-
-	visitantes := TDADicc.CrearABB[int, string](func(a, b int) int {
-		if a < b {
-			return -1
-		} else if a > b {
-			return 1
-		}
-		return 0
-	})
+	server := servidor.CrearServidor()
 
 	for scanner.Scan() {
 		comando := scanner.Text()
 
-		resultado := procesarComando(comando, visitantes, recursos)
+		resultado := procesarComando(comando, server)
 		imprimirResultado(resultado)
 	}
 }
 
-func procesarComando(comando string, visitantes TDADicc.DiccionarioOrdenado[int, string], recursos TDADicc.Diccionario[string, int]) error {
+func procesarComando(comando string, server *servidor.Servidor) error {
 	partes := strings.Fields(comando)
 
 	if len(partes) == 0 {
@@ -45,14 +36,14 @@ func procesarComando(comando string, visitantes TDADicc.DiccionarioOrdenado[int,
 			return fmt.Errorf("agregar_archivo")
 		}
 		archivo := partes[1]
-		return LOG.AgregarArchivo(archivo, visitantes, recursos)
+		return LOG.AgregarArchivo(archivo, server)
 
 	case "ver_visitantes":
 		if len(partes) != 3 {
 			return fmt.Errorf("ver_visitantes")
 		}
 		desde, hasta := partes[1], partes[2]
-		return LOG.VerVisitantes(desde, hasta, visitantes)
+		return LOG.VerVisitantes(desde, hasta, server)
 	case "ver_mas_visitados":
 		if len(partes) != 2 {
 			return fmt.Errorf("ver_mas_visitados")
@@ -61,7 +52,7 @@ func procesarComando(comando string, visitantes TDADicc.DiccionarioOrdenado[int,
 		if err != nil {
 			return fmt.Errorf("ver_mas_visitados")
 		}
-		return LOG.VerMasVisitados(n, recursos)
+		return LOG.VerMasVisitados(n, server)
 	default:
 		return fmt.Errorf("comando no reconocido")
 	}
