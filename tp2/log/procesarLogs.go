@@ -4,10 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 	"tdas/diccionario"
 	"time"
+	"tp2/Ip"
 	servidor "tp2/TDAServidor"
 )
 
@@ -55,19 +55,6 @@ func verificarDoS(IpRequeridas diccionario.Diccionario[string, []time.Time]) []s
 	return DoSIPs
 }
 
-func conversionIP(ip string) int {
-	valores := strings.Split(ip, ".")
-	res := 0
-	for i, e := range valores {
-		n, err := strconv.Atoi(e)
-		if err != nil {
-			return -1
-		}
-		res += n << (8 * (3 - i))
-	}
-	return res
-}
-
 func detectarDos(tiemposSolicitud []time.Time) bool {
 	cant := len(tiemposSolicitud)
 	if cant < 5 {
@@ -81,23 +68,6 @@ func detectarDos(tiemposSolicitud []time.Time) bool {
 		inicio++
 	}
 	return false
-}
-
-func mantenimiento(ip, sitio string, visitantes diccionario.DiccionarioOrdenado[int, string], recursos diccionario.Diccionario[string, int]) {
-	if recursos.Pertenece(sitio) {
-		n := recursos.Obtener(sitio)
-		recursos.Guardar(sitio, n+1)
-	} else {
-		recursos.Guardar(sitio, 1)
-	}
-
-	ipNumerica := conversionIP(ip)
-	if ipNumerica == -1 {
-		return
-	}
-	if !visitantes.Pertenece(ipNumerica) {
-		visitantes.Guardar(ipNumerica, ip)
-	}
 }
 
 func imprimirDoS(DoSIPs []string) {
@@ -118,31 +88,13 @@ func registrarTiempo(ip, t string, IpRequeridas diccionario.Diccionario[string, 
 }
 
 func radixSort(ips []string) []string {
-	ordenadoPorOcteto4 := counting(ips, func(ip string) int {
-		octetos := strings.Split(ip, ".")
-		valor, _ := strconv.Atoi(octetos[3])
-		return valor
-	})
+	for i := 3; i >= 0; i-- {
 
-	ordenadoPorOcteto3 := counting(ordenadoPorOcteto4, func(ip string) int {
-		octetos := strings.Split(ip, ".")
-		valor, _ := strconv.Atoi(octetos[2])
-		return valor
-	})
-
-	ordenadoPorOcteto2 := counting(ordenadoPorOcteto3, func(ip string) int {
-		octetos := strings.Split(ip, ".")
-		valor, _ := strconv.Atoi(octetos[1])
-		return valor
-	})
-
-	ordenadoPorOcteto1 := counting(ordenadoPorOcteto2, func(ip string) int {
-		octetos := strings.Split(ip, ".")
-		valor, _ := strconv.Atoi(octetos[0])
-		return valor
-	})
-
-	return ordenadoPorOcteto1
+		ips = counting(ips, func(ip string) int {
+			return Ip.ObtenerOcteto(ip, i)
+		})
+	}
+	return ips
 }
 
 func counting(arr []string, criterio func(string) int) []string {
