@@ -16,10 +16,18 @@ def procesar_archivo(ruta):
 
     return grafo_bipartito, usuarios_canciones, canciones_usuarios, generos_por_cancion, canciones_populares
 
+def procesar_entrada(entrada, grafo_bipartito, usuarios_canciones, canciones_usuarios, generos_por_cancion, canciones_populares):
+    pass
 
 def main():
     archivo = sys.argv[1]
     grafo_bipartito, usuarios_canciones, canciones_usuarios, generos_por_cancion, canciones_populares = procesar_archivo(archivo)
     grafo_canciones_repetidas = Grafo()
+
+    entrada = sys.stdin.readline()
+    while entrada != "":
+        procesar_entrada(entrada, grafo_bipartito, usuarios_canciones, canciones_usuarios, generos_por_cancion, canciones_populares)
+        entrada = sys.stdin.readline()
+
 
 main()
