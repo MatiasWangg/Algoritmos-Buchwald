@@ -17,17 +17,67 @@ def procesar_archivo(ruta):
     return grafo_bipartito, usuarios_canciones, canciones_usuarios, generos_por_cancion, canciones_populares
 
 def procesar_entrada(entrada, grafo_bipartito, usuarios_canciones, canciones_usuarios, generos_por_cancion, canciones_populares):
-    pass
+    entrada=entrada.split(" ")
+    if not entrada:
+        raise Exception("Porfavor, ingrese un comando valido")
+    comando=entrada[0]
+    parametros=entrada[1:]
+
+    if comando == "camino":
+        if len(parametros)<3:
+            raise Exception(f"Faltan argumentos para el comando: {comando}")
+        canciones="".join(parametros)
+        canciones.split(">>>>")
+        origen=parametros[0]
+        destino=parametros[2]
+   
+    elif comando == "mas_importantes":
+        try:
+            n = int(parametros.strip()[0])
+        except ValueError:
+            print(f"Error en el parametro de {comando}")
+
+    elif comando =="recomendacion":
+        try:
+            n = parametros[1]
+        except ValueError:
+            print(f"Error en los parametros de {comando}")
+
+        canciones = "".join(parametros[2:])
+        canciones = canciones.split(">>>>")
+
+        if parametros[0]=="usuarios":
+            pass
+        elif parametros[0]=="canciones":
+            pass
+        else:
+            raise Exception(f"error en parametro de {comando}")
+    elif comando == "ciclo":
+        try:
+            n = parametros[0]
+        except ValueError:
+            print(f"Error en los parametros de {comando}")
+        cancion="".join(parametros[1:])
+        pass
+    elif comando == "rango":
+        try:
+            n = parametros[0]
+        except ValueError:
+            print(f"Error en los parametros de {comando}")
+        cancion="".join(parametros[1:])
+        pass
+    else:
+        raise Exception("Comando no reconocido")
+        
+    
 
 def main():
     archivo = sys.argv[1]
     grafo_bipartito, usuarios_canciones, canciones_usuarios, generos_por_cancion, canciones_populares = procesar_archivo(archivo)
     grafo_canciones_repetidas = Grafo()
 
-    entrada = sys.stdin.readline()
-    while entrada != "":
+    for entrada in sys.stdin:
         procesar_entrada(entrada, grafo_bipartito, usuarios_canciones, canciones_usuarios, generos_por_cancion, canciones_populares)
-        entrada = sys.stdin.readline()
 
 
 main()
