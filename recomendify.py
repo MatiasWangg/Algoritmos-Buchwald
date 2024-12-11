@@ -1,5 +1,5 @@
 import sys
-from grafo import Grafo
+from TDAGRAFO.grafo import Grafo
 import csv
 from funciones import f
 
