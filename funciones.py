@@ -62,7 +62,7 @@ def comando_camino(grafo_bipartito, origen, destino):
     padres, _ = b.camino_minimo_bfs(grafo_bipartito, origen)
 
     if destino not in padres:
-        print(f"No existe un camino entre '{origen}' y '{destino}'.")
+        print(f"No se encontro recorrido")
         return
 
     camino = []
