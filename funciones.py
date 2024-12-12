@@ -1,5 +1,5 @@
 from TDAGRAFO.grafo import Grafo
-from biblioteca import b
+import biblioteca as b
 """
 usuarios_canciones: Permite conocer qué canciones le gustan a un usuario.
 canciones_usuarios: Permite conocer qué usuarios han marcado una canción como parte de sus listas de reproducción.

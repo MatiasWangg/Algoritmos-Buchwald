@@ -2,7 +2,7 @@
 import sys
 from TDAGRAFO.grafo import Grafo
 import csv
-from funciones import f
+import funciones as f
 
 def procesar_archivo(ruta):
     with open(ruta) as archivo:
