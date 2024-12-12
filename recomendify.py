@@ -44,61 +44,61 @@ def procesar_entrada(entrada, grafo_bipartito, grafo_canciones_repetidas, usuari
 
 
     
-    def validar_parametros(parametros,minimo):
-        if len(parametros)<minimo:
-            raise Exception(f"Faltan parametros para el comando: {comando}")
+def validar_parametros(parametros,minimo):
+    if len(parametros)<minimo:
+        raise Exception("Faltan parametros")
         
     
-    def ejecutar_camino(parametros, grafo_bipartito, *_):
-        canciones = "".join(parametros).split(">>>>")
-        validar_parametros(canciones, 2)
-        origen, destino = canciones[0].strip(), canciones[1].strip()
+def ejecutar_camino(parametros, grafo_bipartito, *_):
+    canciones = "".join(parametros).split(">>>>")
+    validar_parametros(canciones, 2)
+    origen, destino = canciones[0].strip(), canciones[1].strip()
 
-        f.comando_camino(grafo_bipartito, origen, destino)
-
-    
-    def ejecutar_mas_importantes(parametros,grafo_bipartito,*_):
-        validar_parametros(parametros, 1)
-        try:
-            n = int(parametros[0])
-        except ValueError:
-            raise ValueError("El parámetro debe ser un número válido.")
-    
-        f.comando_mas_importantes(grafo_bipartito, n)
+    f.comando_camino(grafo_bipartito, origen, destino)
 
     
-    def ejecutar_recomendacion(parametros,grafo_bipartito,*_):
-        validar_parametros(parametros,3)
-        recomendado=parametros[0]
-        try:
-            n=int(parametros[0])
-        except ValueError:
-            raise ValueError("El parámetro debe ser un número válido.")
-        canciones="".join(parametros[2:]).split(">>>>")
-        f.comando_recomendacion(grafo_bipartito,recomendado,n,canciones)
+def ejecutar_mas_importantes(parametros,grafo_bipartito,*_):
+    validar_parametros(parametros, 1)
+    try:
+        n = int(parametros[0])
+    except ValueError:
+        raise ValueError("El parámetro debe ser un número válido.")
 
-    
-    def ejecutar_ciclo(parametros, grafo_bipartito, grafo_canciones_repetidas, usuarios_canciones, canciones_usuarios, generos_por_cancion, canciones_populares):
-        validar_parametros(parametros,2)
-        try:
-            n=int(parametros[0])
-        except ValueError:
-            raise ValueError("El parámetro debe ser un número válido.")
-        cancion="".join(parametros[2:])
-        f.completar_grafo_canciones_repetidas(usuarios_canciones, grafo_canciones_repetidas)
-        f.comando_ciclo(grafo_canciones_repetidas, int(n), cancion)
+    f.comando_mas_importantes(grafo_bipartito, n)
 
-    
-    def ejecutar_rango(parametros, _, grafo_canciones_repetidas, usuarios_canciones):
-        validar_parametros(parametros,2)
-        try:
-            n=int(parametros[0])
-        except ValueError:
-            raise ValueError("El parámetro debe ser un número válido.")
-        cancion="".join(parametros[2:])
-        f.completar_grafo_canciones_repetidas(usuarios_canciones, grafo_canciones_repetidas)
-        f.comando_rango(grafo_canciones_repetidas, n, cancion)
-    
+
+def ejecutar_recomendacion(parametros,grafo_bipartito,*_):
+    validar_parametros(parametros,3)
+    recomendado=parametros[0]
+    try:
+        n=int(parametros[0])
+    except ValueError:
+        raise ValueError("El parámetro debe ser un número válido.")
+    canciones="".join(parametros[2:]).split(">>>>")
+    f.comando_recomendacion(grafo_bipartito,recomendado,n,canciones)
+
+
+def ejecutar_ciclo(parametros, grafo_bipartito, grafo_canciones_repetidas, usuarios_canciones, canciones_usuarios, generos_por_cancion, canciones_populares):
+    validar_parametros(parametros,2)
+    try:
+        n=int(parametros[0])
+    except ValueError:
+        raise ValueError("El parámetro debe ser un número válido.")
+    cancion="".join(parametros[2:])
+    f.completar_grafo_canciones_repetidas(usuarios_canciones, grafo_canciones_repetidas)
+    f.comando_ciclo(grafo_canciones_repetidas, int(n), cancion)
+
+
+def ejecutar_rango(parametros, _, grafo_canciones_repetidas, usuarios_canciones):
+    validar_parametros(parametros,2)
+    try:
+        n=int(parametros[0])
+    except ValueError:
+        raise ValueError("El parámetro debe ser un número válido.")
+    cancion="".join(parametros[2:])
+    f.completar_grafo_canciones_repetidas(usuarios_canciones, grafo_canciones_repetidas)
+    f.comando_rango(grafo_canciones_repetidas, n, cancion)
+
 
 def main():
     archivo = sys.argv[1]
