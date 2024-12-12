@@ -17,7 +17,7 @@ class Grafo:
         if not self.vertice_existe(v):
             raise ValueError(f"No se encuentra el vertice {v} en el grafo")
         self.vertices.pop(v)
-        for dato in  self.vertices.values:
+        for dato in  self.vertices.values():
             if v in dato:
                 dato.pop(v)
 

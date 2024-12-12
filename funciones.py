@@ -52,8 +52,6 @@ def construir_grafo_bipartito(usuarios_canciones, canciones_usuarios):
     
     return grafo_bipartito
 
-
-
 def comando_camino(grafo_bipartito, origen, destino):
     if origen not in grafo_bipartito.obtener_vertices() or destino not in grafo_bipartito.obtener_vertices():
         print(f"Error: Uno o ambos vértices ('{origen}', '{destino}') no existen en el grafo.")
@@ -87,8 +85,62 @@ def comando_mas_importantes(grafo_bipartito, n):
     salida = "; ".join(canciones_mas_importantes)
     imprimir(salida)
 
-def comando_recomendacion():
-    pass
+def comando_recomendacion(grafo_bipartito, tipo, n, canciones):
+    if tipo == "canciones":
+        canciones_recomendadas = recomendar_canciones(grafo_bipartito, canciones, n)
+        salida = "; ".join(canciones_recomendadas)
+        imprimir(salida)
+    
+    elif tipo == "usuarios":
+        usuarios_recomendados = recomendar_usuarios(grafo_bipartito, canciones, n)
+        salida = "; ".join(usuarios_recomendados)
+        imprimir(salida)
+
+def recomendar_canciones(grafo_bipartito, canciones_conocidas, n):
+    pagerank = {}
+    for cancion in canciones_conocidas:
+        pagerank[cancion] = 1.0  
+    
+    pagerank = aplicar_pagerank(grafo_bipartito, pagerank)
+    
+
+    canciones_ordenadas = sorted(pagerank.items(), key=lambda x: x[1], reverse=True)
+
+    canciones_recomendadas = []
+    for cancion, _ in canciones_ordenadas:
+        if cancion not in canciones_conocidas:
+            canciones_recomendadas.append(cancion)
+
+    return canciones_recomendadas[:n]
+
+def recomendar_usuarios(grafo_bipartito, canciones_conocidas, n):
+    pagerank = {}
+    for cancion in canciones_conocidas:
+        for usuario in grafo_bipartito.obtener_adyacentes(cancion):
+            if usuario not in pagerank:
+                pagerank[usuario] = 1.0  
+
+    pagerank = aplicar_pagerank(grafo_bipartito, pagerank)
+    usuarios_ordenados = sorted(pagerank.items(), key=lambda x: x[1], reverse=True)
+    usuarios_recomendados = []
+    for usuario, _ in usuarios_ordenados[:n]:
+        usuarios_recomendados.append(usuario)
+    return usuarios_recomendados
+
+
+def aplicar_pagerank(grafo_bipartito, pagerank_inicial):
+    for _ in range(100): 
+        nuevo_pagerank = {}
+        for vertice in grafo_bipartito.obtener_vertices():
+            suma = 0
+            for vecino in grafo_bipartito.obtener_adyacentes(vertice):
+                suma += pagerank_inicial.get(vecino, 0) / len(grafo_bipartito.obtener_adyacentes(vecino))
+            nuevo_pagerank[vertice] = suma
+        
+        pagerank_inicial = nuevo_pagerank
+    
+    return pagerank_inicial
+
 
 def completar_grafo_canciones_repetidas(usuarios_canciones, grafo_canciones_repetidas):
     for canciones_usuario in usuarios_canciones.values():
