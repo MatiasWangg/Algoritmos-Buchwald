@@ -1,4 +1,5 @@
 from TDAGRAFO.grafo import Grafo
+from biblioteca import b
 """
 usuarios_canciones: Permite conocer qué canciones le gustan a un usuario.
 canciones_usuarios: Permite conocer qué usuarios han marcado una canción como parte de sus listas de reproducción.
@@ -50,3 +51,35 @@ def construir_grafo_bipartito(usuarios_canciones, canciones_usuarios):
             grafo_bipartito.agregar_arista(usuario, cancion)
     
     return grafo_bipartito
+
+def comando_camino(grafo_bipartito, origen, destino):
+    if origen not in grafo_bipartito.obtener_vertices() or destino not in grafo_bipartito.obtener_vertices():
+        print(f"Error: Uno o ambos vértices ('{origen}', '{destino}') no existen en el grafo.")
+        return
+    
+    padres, _ = b.camino_minimo_bfs(grafo_bipartito, origen)
+
+    if destino not in padres:
+        print(f"No existe un camino entre '{origen}' y '{destino}'.")
+        return
+
+    camino = []
+    actual = destino
+    while actual is not None:
+        camino.append(actual)
+        actual = padres[actual]
+
+    camino.reverse()
+    print(" >>>> ".join(camino))
+
+def comando_mas_importantes():
+    pass
+
+def comando_recomendacion():
+    pass
+
+def comando_ciclo():
+    pass
+
+def comando_rango():
+    pass

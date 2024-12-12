@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import sys
 from TDAGRAFO.grafo import Grafo
 import csv
@@ -16,7 +17,7 @@ def procesar_archivo(ruta):
 
     return grafo_bipartito, usuarios_canciones, canciones_usuarios, generos_por_cancion, canciones_populares
 
-def procesar_entrada(entrada, grafo_bipartito, usuarios_canciones, canciones_usuarios, generos_por_cancion, canciones_populares):
+def procesar_entrada(entrada, grafo_bipartito, grafo_canciones_repetidas, usuarios_canciones, canciones_usuarios, generos_por_cancion, canciones_populares):
     entrada=entrada.split(" ")
     if not entrada:
         raise Exception("Porfavor, ingrese un comando valido")
@@ -30,12 +31,14 @@ def procesar_entrada(entrada, grafo_bipartito, usuarios_canciones, canciones_usu
         canciones.split(">>>>")
         origen=parametros[0]
         destino=parametros[2]
+        f.comando_camino(grafo_bipartito, origen.strip(), destino.strip())
    
     elif comando == "mas_importantes":
         try:
             n = int(parametros.strip()[0])
         except ValueError:
             print(f"Error en el parametro de {comando}")
+        f.comando_mas_importantes()
 
     elif comando =="recomendacion":
         try:
@@ -52,12 +55,16 @@ def procesar_entrada(entrada, grafo_bipartito, usuarios_canciones, canciones_usu
             pass
         else:
             raise Exception(f"error en parametro de {comando}")
+        
+        f.comando_recomendacion()
+        
     elif comando == "ciclo":
         try:
             n = parametros[0]
         except ValueError:
             print(f"Error en los parametros de {comando}")
         cancion="".join(parametros[1:])
+        f.comando_ciclo()
         pass
     elif comando == "rango":
         try:
@@ -66,6 +73,7 @@ def procesar_entrada(entrada, grafo_bipartito, usuarios_canciones, canciones_usu
             print(f"Error en los parametros de {comando}")
         cancion="".join(parametros[1:])
         pass
+        f.comando_rango()
     else:
         raise Exception("Comando no reconocido")
         
@@ -77,7 +85,7 @@ def main():
     grafo_canciones_repetidas = Grafo()
 
     for entrada in sys.stdin:
-        procesar_entrada(entrada, grafo_bipartito, usuarios_canciones, canciones_usuarios, generos_por_cancion, canciones_populares)
+        procesar_entrada(entrada, grafo_bipartito, grafo_canciones_repetidas, usuarios_canciones, canciones_usuarios, generos_por_cancion, canciones_populares)
 
 
 main()
