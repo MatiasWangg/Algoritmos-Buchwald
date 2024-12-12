@@ -47,24 +47,34 @@ def bfs(grafo, vertice, padres, visitados, orden):
                 orden[w] = orden[v]+1
                 cola.append(w)
 
-def orden_topologico_dfs(grafo):
-    visitados = set()
-    pila = deque()
-    for v in grafo.obtener_vertices():
-        if v not in visitados:
-            visitados.add(v)
-            dfs(grafo, v, visitados, pila)
-        resultado = []
-        while pila:
-            resultado.append(pila.pop())
-        return resultado
+def dfs(grafo, v, origen, visitados, camino, n):
+    visitados.add(v)
+    camino.append(v)
 
-def dfs(grafo, vertice, visitados, pila):
-    for w in grafo.adyacentes(vertice):
-        if w not in visitados:
-            visitados.add(w)
-            dfs(grafo, w, visitados, pila)
-    pila.append(vertice)
+    if len(camino) == n:
+        if origen in grafo.adyacentes(v):
+            camino.append(origen)
+            return camino
+        camino.pop()
+        visitados.remove(v)
+        return None
+
+    for vecino in grafo.adyacentes(v):
+        if vecino not in visitados:
+            resultado = dfs(grafo, vecino, origen, visitados, camino, n)
+            if resultado:
+                return resultado
+
+    camino.pop()
+    visitados.remove(v)
+    return None
+
+
+def buscar_ciclo(grafo, n, origen):
+    visitados = set()
+    camino = []
+    return dfs(grafo, origen, origen, visitados, camino, n)
+
 
 def centralidad(grafo):
     centralidad = {}
@@ -95,3 +105,26 @@ def ordenar_vertices(distancias):
             vertices_filtradas.append(vertice)
     return vertices_filtradas
 
+def buscar_rango(grafo, n , cancion):
+    if n < 0:
+        return 0
+    visitados = set()
+    distancias = {}
+    cantidad = 0
+    visitados.add(cancion)
+    distancias[cancion] = 0
+    cola = deque()
+    cola.append(cancion)
+    while cola:
+        v = cola.popleft()
+        for w in grafo.adyacentes(w):
+            if w not in visitados:
+                visitados.add(w)
+                distancias[w] = distancias[v] + 1
+                if distancias[w] < n:
+                    cola.append(w)
+                else:
+                    cantidad += 1
+    return cantidad
+
+    

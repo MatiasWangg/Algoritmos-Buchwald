@@ -38,7 +38,7 @@ def procesar_entrada(entrada, grafo_bipartito, grafo_canciones_repetidas, usuari
             n = int(parametros.strip()[0])
         except ValueError:
             print(f"Error en el parametro de {comando}")
-        f.comando_mas_importantes()
+        f.comando_mas_importantes(grafo_bipartito, n)
 
     elif comando =="recomendacion":
         try:
@@ -63,20 +63,21 @@ def procesar_entrada(entrada, grafo_bipartito, grafo_canciones_repetidas, usuari
             n = parametros[0]
         except ValueError:
             print(f"Error en los parametros de {comando}")
-        cancion="".join(parametros[1:])
-        f.comando_ciclo()
-        pass
+        cancion="".join(parametros[1:]).strip()
+        f.completar_grafo_canciones_repetidas(usuarios_canciones, grafo_canciones_repetidas)
+        f.comando_ciclo(grafo_canciones_repetidas, int(n), cancion)
+
     elif comando == "rango":
         try:
-            n = parametros[0]
+            n = int(parametros[0])
         except ValueError:
-            print(f"Error en los parametros de {comando}")
-        cancion="".join(parametros[1:])
-        pass
-        f.comando_rango()
-    else:
-        raise Exception("Comando no reconocido")
-        
+            print(f"Error en los parámetros de {comando}")
+            return
+        cancion = "".join(parametros[1:]).strip()
+        f.completar_grafo_canciones_repetidas(usuarios_canciones, grafo_canciones_repetidas)
+        f.comando_rango(grafo_canciones_repetidas, n, cancion)
+
+            
     
 
 def main():

@@ -52,6 +52,8 @@ def construir_grafo_bipartito(usuarios_canciones, canciones_usuarios):
     
     return grafo_bipartito
 
+
+
 def comando_camino(grafo_bipartito, origen, destino):
     if origen not in grafo_bipartito.obtener_vertices() or destino not in grafo_bipartito.obtener_vertices():
         print(f"Error: Uno o ambos vértices ('{origen}', '{destino}') no existen en el grafo.")
@@ -70,16 +72,44 @@ def comando_camino(grafo_bipartito, origen, destino):
         actual = padres[actual]
 
     camino.reverse()
-    print(" >>>> ".join(camino))
+    imprimir(" >>>> ".join(camino))
 
-def comando_mas_importantes():
-    pass
+def comando_mas_importantes(grafo_bipartito, n):
+    centralidades = b.centralidad(grafo_bipartito)
+
+    canciones_ordenadas = sorted(centralidades.items(), key=lambda x: x[1], reverse=True)
+
+    canciones_mas_importantes = []
+    for i in range(min(n, len(canciones_ordenadas))):
+        cancion = canciones_ordenadas[i][0]
+        canciones_mas_importantes.append(cancion)
+
+    salida = "; ".join(canciones_mas_importantes)
+    imprimir(salida)
 
 def comando_recomendacion():
     pass
 
-def comando_ciclo():
-    pass
+def completar_grafo_canciones_repetidas(usuarios_canciones, grafo_canciones_repetidas):
+    for canciones_usuario in usuarios_canciones.values():
+        for i, cancion1 in enumerate(canciones_usuario):
+            for cancion2 in canciones_usuario[i + 1:]:
+                if not grafo_canciones_repetidas.estan_unidos(cancion1, cancion2):
+                    grafo_canciones_repetidas.agregar_arista(cancion1, cancion2)
 
-def comando_rango():
-    pass
+def comando_ciclo(grafo, n, cancion):
+    ciclo = b.buscar_ciclo(grafo, cancion, n)
+    
+    if ciclo is None:
+        print(f"No se encontró un ciclo de longitud {n} desde {cancion}.")
+    else:
+        ciclo_str = " --> ".join(ciclo) + f" --> {ciclo[0]}"
+        imprimir(ciclo_str)
+
+
+def comando_rango(grafo, n, cancion):
+    cantidad = b.buscar_rango(grafo, cancion, n)
+    imprimir(str(cantidad))
+
+def imprimir(mensaje):
+    print(mensaje)
