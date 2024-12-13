@@ -54,7 +54,7 @@ def construir_grafo_bipartito(usuarios_canciones, canciones_usuarios):
 
 def comando_camino(grafo_bipartito, origen, destino):
     if origen not in grafo_bipartito.obtener_vertices() or destino not in grafo_bipartito.obtener_vertices():
-        print(f"Error: Uno o ambos vértices ('{origen}', '{destino}') no existen en el grafo.")
+        print("Tanto el origen como el destino deben ser canciones")
         return
     
     padres, _ = b.camino_minimo_bfs(grafo_bipartito, origen)
@@ -62,14 +62,8 @@ def comando_camino(grafo_bipartito, origen, destino):
     if destino not in padres:
         print(f"No se encontro recorrido")
         return
-
-    camino = []
-    actual = destino
-    while actual is not None:
-        camino.append(actual)
-        actual = padres[actual]
-
-    camino.reverse()
+    
+    camino = b.reconstruir_camino(padres,origen,destino)
     imprimir(" >>>> ".join(camino))
 
 def comando_mas_importantes(grafo_bipartito, n):
