@@ -7,9 +7,9 @@ class Grafo:
             self.agregar_vertice(vertice)
     
     def agregar_vertice(self, v):
-        if not v in self.vertices:
+        if not self.vertice_existe(v):
             self.vertices[v] = {}
-    
+
     def vertice_existe(self,v):
         return v in self.vertices
 

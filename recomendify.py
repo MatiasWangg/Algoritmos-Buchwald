@@ -23,11 +23,11 @@ def procesar_entrada(entrada, grafo_bipartito, grafo_canciones_repetidas, usuari
     """
     Procesa la entrada del usuario y ejecuta el comando correspondiente.
     """
-    entrada = entrada.strip().split(" ")
+    entrada = entrada.strip().split(maxsplit=1)
     if not entrada:
         raise ValueError("Por favor, ingrese un comando válido.")
     
-    comando, parametros = entrada[0], entrada[1:]
+    comando, parametros = entrada[0], entrada[1]
     comandos = {
         "camino": ejecutar_camino,
         "mas_importantes": ejecutar_mas_importantes,
@@ -50,10 +50,9 @@ def validar_parametros(parametros,minimo):
         
     
 def ejecutar_camino(parametros, grafo_bipartito, *_):
-    canciones = "".join(parametros).split(">>>>")
-    validar_parametros(canciones, 2)
-    origen, destino = canciones[0].strip(), canciones[1].strip()
-
+    parametros= parametros.split(">>>>")
+    validar_parametros(parametros, 2)
+    origen, destino = parametros[0].strip(), parametros[1].strip()
     f.comando_camino(grafo_bipartito, origen, destino)
 
     
