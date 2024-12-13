@@ -128,11 +128,11 @@ def buscar_rango(grafo, n , cancion):
     return cantidad
 
     
-def reconstruir_camino(padres,origen,destino):
+def reconstruir_camino(padres,destino):
     camino = []
     actual = destino
     while actual is not None:
         camino.append(actual)
         actual = padres[actual]
-
-    return camino.reverse()
+    camino.reverse()
+    return camino

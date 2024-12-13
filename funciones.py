@@ -9,9 +9,10 @@ def cargar_usuarios_canciones(datos):
     canciones_usuarios = {}
     for id, user_id, track_name, artist, playlist_id, playlist_name, genres in datos:
         cancion = f"{track_name} - {artist}"
+        playlist=playlist_name
         if user_id not in usuarios_canciones:
             usuarios_canciones[user_id] = set()
-        usuarios_canciones[user_id].add(cancion)
+        usuarios_canciones[user_id].add((cancion,playlist))
         
         if cancion not in canciones_usuarios:
             canciones_usuarios[cancion] = set()
@@ -47,7 +48,7 @@ def construir_grafo_bipartito(usuarios_canciones, canciones_usuarios):
         grafo_bipartito.agregar_vertice(cancion)
    
     for usuario, canciones in usuarios_canciones.items():
-        for cancion in canciones:
+        for cancion,_ in canciones:
             grafo_bipartito.agregar_arista(usuario, cancion)
     
     return grafo_bipartito
@@ -63,7 +64,8 @@ def comando_camino(grafo_bipartito, origen, destino):
         print(f"No se encontro recorrido")
         return
     
-    camino = b.reconstruir_camino(padres,origen,destino)
+    camino = b.reconstruir_camino(padres,destino)
+    print(camino)
     imprimir(" >>>> ".join(camino))
 
 def comando_mas_importantes(grafo_bipartito, n):
