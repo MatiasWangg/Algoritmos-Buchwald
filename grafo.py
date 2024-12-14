@@ -43,10 +43,12 @@ class Grafo:
             self.vertices[w].pop(v)
     
     def estan_unidos(self, v, w):
+        if not self.vertice_existe(v) or not self.vertice_existe(w):
+            return False
         if self.dirigido:
-            return v in self.vertices[w]
+            return w in self.vertices[v]
         else:
-            return v in self.vertices[w] and w in self.vertices[v]
+            return w in self.vertices[v] or v in self.vertices[w]
     
     def peso_arista(self, v, w):
         if self. estan_unidos(v, w):

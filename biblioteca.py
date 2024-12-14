@@ -104,7 +104,8 @@ def ordenar_vertices(distancias):
             vertices_filtradas.append(vertice)
     return vertices_filtradas
 
-def buscar_rango(grafo, n , cancion):
+
+def buscar_rango(grafo, n, cancion):
     if n < 0:
         return 0
     visitados = set()
@@ -116,14 +117,13 @@ def buscar_rango(grafo, n , cancion):
     cola.append(cancion)
     while cola:
         v = cola.popleft()
-        for w in grafo.adyacentes(w):
+        for w in grafo.adyacentes(v):  
             if w not in visitados:
                 visitados.add(w)
                 distancias[w] = distancias[v] + 1
-                if distancias[w] < n:
+                if distancias[w] <= n:
                     cola.append(w)
-                else:
-                    cantidad += 1
+                    cantidad += 1  
     return cantidad
 
     
