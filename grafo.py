@@ -1,17 +1,18 @@
 import random
 class Grafo:
+
     def __init__(self, es_dirigido = False, vertices_init = []):
         self.dirigido = es_dirigido
         self.vertices = {}
         for vertice in vertices_init:
             self.agregar_vertice(vertice)
     
+    def vertice_existe(self,v):
+        return v in self.vertices
+    
     def agregar_vertice(self, v):
         if not self.vertice_existe(v):
             self.vertices[v] = {}
-
-    def vertice_existe(self,v):
-        return v in self.vertices
 
     def borrar_vertice(self, v):
         if not self.vertice_existe(v):

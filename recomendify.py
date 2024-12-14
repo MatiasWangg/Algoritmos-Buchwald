@@ -1,20 +1,20 @@
 #!/usr/bin/python3
-import sys
-from TDAGRAFO.grafo import Grafo
-import csv
-import funciones as f
+import sys,csv
+from grafo import Grafo
+import comandos as f
+import utils as u
+
 
 def procesar_archivo(ruta):
     with open(ruta) as archivo:
         tsv = csv.reader(archivo, delimiter="\t")
         lista_archivo = list(tsv)
-        cabecera = lista_archivo[0]
         datos = lista_archivo[1:] 
 
-    usuarios_canciones, canciones_usuarios = f.cargar_usuarios_canciones(datos)
-    generos_por_cancion = f.cargar_generos_por_cancion(datos)
-    canciones_populares = f.construir_lista_canciones_populares(datos)
-    grafo_bipartito = f.construir_grafo_bipartito(usuarios_canciones, canciones_usuarios)
+    usuarios_canciones, canciones_usuarios = u.cargar_usuarios_canciones(datos)
+    generos_por_cancion = u.cargar_generos_por_cancion(datos)
+    canciones_populares = u.construir_lista_canciones_populares(datos)
+    grafo_bipartito = u.construir_grafo_bipartito(usuarios_canciones, canciones_usuarios)
 
     return grafo_bipartito, usuarios_canciones, canciones_usuarios, generos_por_cancion, canciones_populares
 
@@ -49,32 +49,65 @@ def validar_parametros(parametros,minimo):
         raise Exception("Faltan parametros")
         
     
-def ejecutar_camino(parametros, grafo_bipartito, *_):
+def ejecutar_camino(parametros, grafo_bipartito, grafo_canciones_repetidas, usuarios_canciones, canciones_usuarios, generos_por_cancion, canciones_populares):
     parametros= parametros.split(">>>>")
     validar_parametros(parametros, 2)
     origen, destino = parametros[0].strip(), parametros[1].strip()
     f.comando_camino(grafo_bipartito, origen, destino)
 
     
-def ejecutar_mas_importantes(parametros,grafo_bipartito,*_):
+def ejecutar_mas_importantes(parametros, grafo_bipartito,*_):
     validar_parametros(parametros, 1)
     try:
-        n = int(parametros[0])
+        n = int(parametros)
     except ValueError:
         raise ValueError("El parámetro debe ser un número válido.")
-
     f.comando_mas_importantes(grafo_bipartito, n)
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 def ejecutar_recomendacion(parametros,grafo_bipartito,*_):
+    parametros=parametros.split(maxsplit=2)
     validar_parametros(parametros,3)
-    recomendado=parametros[0]
+    print(parametros)
+    tipo=parametros[0]
+    print(tipo)
     try:
-        n=int(parametros[0])
+        n=int(parametros[1])
+        print(n)
     except ValueError:
         raise ValueError("El parámetro debe ser un número válido.")
-    canciones="".join(parametros[2:]).split(">>>>")
-    f.comando_recomendacion(grafo_bipartito,recomendado,n,canciones)
+    canciones=parametros[2].split(">>>>")
+    f.comando_recomendacion(grafo_bipartito,tipo,n,canciones)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def ejecutar_ciclo(parametros, grafo_bipartito, grafo_canciones_repetidas, usuarios_canciones, canciones_usuarios, generos_por_cancion, canciones_populares):

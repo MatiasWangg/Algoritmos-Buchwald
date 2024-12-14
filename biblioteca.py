@@ -1,6 +1,5 @@
 import heapq
 from collections import deque
-from TDAGRAFO import grafo
 """
 Implementaciones iniciales porque pueden cambiar (Parametros)
 """
