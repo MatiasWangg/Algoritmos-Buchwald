@@ -118,16 +118,27 @@ def aplicar_pagerank(grafo_bipartito,pagerank_inicial,max_iter=10):
 
 
 
-
 def completar_grafo_canciones_repetidas(usuarios_canciones, grafo_canciones_repetidas):
-    for canciones_usuario in usuarios_canciones.values():
-        for i, cancion1 in enumerate(canciones_usuario):
-            for cancion2 in canciones_usuario[i + 1:]:
+    for usuario, canciones in usuarios_canciones.items():
+        canciones = list(canciones)
+
+        for cancion in canciones:
+            if not grafo_canciones_repetidas.vertice_existe(cancion):
+                grafo_canciones_repetidas.agregar_vertice(cancion)
+        for i in range(len(canciones)):
+            for j in range(i + 1, len(canciones)):
+                cancion1 = canciones[i]
+                cancion2 = canciones[j]
+
                 if not grafo_canciones_repetidas.estan_unidos(cancion1, cancion2):
-                    grafo_canciones_repetidas.agregar_arista(cancion1, cancion2)
+                    grafo_canciones_repetidas.agregar_arista(cancion1, cancion2, 1)
+                else:
+                    peso_actual = grafo_canciones_repetidas.peso_arista(cancion1, cancion2)
+                    grafo_canciones_repetidas.agregar_arista(cancion1, cancion2, peso_actual + 1)
+                    
 
 def comando_ciclo(grafo, n, cancion):
-    ciclo = b.buscar_ciclo(grafo, cancion, n)
+    ciclo = b.buscar_ciclo(grafo, n, cancion)
     
     if ciclo is None:
         print(f"No se encontró un ciclo de longitud {n} desde {cancion}.")

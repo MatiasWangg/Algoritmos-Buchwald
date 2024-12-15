@@ -11,8 +11,8 @@ class Grafo:
         return v in self.vertices
     
     def agregar_vertice(self, v):
-        if not self.vertice_existe(v):
-            self.vertices[v] = {}
+        if v not in self.vertices:
+            self.vertices[v] = {}  
 
     def borrar_vertice(self, v):
         if not self.vertice_existe(v):

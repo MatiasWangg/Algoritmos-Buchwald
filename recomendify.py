@@ -109,16 +109,18 @@ def ejecutar_recomendacion(parametros,grafo_bipartito,*_):
 
 
 
-
 def ejecutar_ciclo(parametros, grafo_bipartito, grafo_canciones_repetidas, usuarios_canciones, canciones_usuarios, generos_por_cancion, canciones_populares):
-    validar_parametros(parametros,2)
+    validar_parametros(parametros, 2)
     try:
-        n=int(parametros[0])
+        n = int(parametros[0])
     except ValueError:
         raise ValueError("El parámetro debe ser un número válido.")
-    cancion="".join(parametros[2:])
+    
+    cancion = " ".join(parametros[1:])
+    cancion = cancion.strip()  
     f.completar_grafo_canciones_repetidas(usuarios_canciones, grafo_canciones_repetidas)
-    f.comando_ciclo(grafo_canciones_repetidas, int(n), cancion)
+    f.comando_ciclo(grafo_canciones_repetidas, n, cancion)
+
 
 
 def ejecutar_rango(parametros, _, grafo_canciones_repetidas, usuarios_canciones):
