@@ -66,49 +66,16 @@ def ejecutar_mas_importantes(parametros, grafo_bipartito,*_):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 def ejecutar_recomendacion(parametros,grafo_bipartito,*_):
     parametros=parametros.split(maxsplit=2)
     validar_parametros(parametros,3)
-    print(parametros)
     tipo=parametros[0]
-    print(tipo)
     try:
         n=int(parametros[1])
-        print(n)
     except ValueError:
         raise ValueError("El parámetro debe ser un número válido.")
-    canciones=parametros[2].split(">>>>")
+    canciones = [c.strip() for c in parametros[2].split(">>>>")]
     f.comando_recomendacion(grafo_bipartito,tipo,n,canciones)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 def ejecutar_ciclo(parametros, grafo_bipartito, grafo_canciones_repetidas, usuarios_canciones, canciones_usuarios, generos_por_cancion, canciones_populares):
     validar_parametros(parametros,2)
