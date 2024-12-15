@@ -51,17 +51,18 @@ def dfs(grafo, v, origen, visitados, camino, n):
     camino.append(v)
 
     if len(camino) == n:
-        if origen in grafo.adyacentes(v):
+        if origen in grafo.adyacentes(v):  
             camino.append(origen)
             return camino
         camino.pop()
         visitados.remove(v)
         return None
 
+    # Explorar vecinos no visitados
     for vecino in grafo.adyacentes(v):
         if vecino not in visitados:
             resultado = dfs(grafo, vecino, origen, visitados, camino, n)
-            if resultado:
+            if resultado: 
                 return resultado
 
     camino.pop()
@@ -70,9 +71,19 @@ def dfs(grafo, v, origen, visitados, camino, n):
 
 
 def buscar_ciclo(grafo, n, origen):
+    if n < 3:
+        return None
+    if origen not in grafo.obtener_vertices():
+        return None
+    if len(grafo.obtener_vertices()) < n:
+        return None
+
+
     visitados = set()
     camino = []
+
     return dfs(grafo, origen, origen, visitados, camino, n)
+
 
 
 def centralidad(grafo):
