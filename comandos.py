@@ -1,5 +1,6 @@
 import biblioteca as b
-
+import pagerank as pr
+import heapq
 
 def comando_camino(grafo_bipartito, origen, destino):
     if origen not in grafo_bipartito.obtener_vertices() or destino not in grafo_bipartito.obtener_vertices():
@@ -16,84 +17,60 @@ def comando_camino(grafo_bipartito, origen, destino):
     print(camino)
     imprimir(" >>>> ".join(camino))
 
-
-
-def comando_mas_importantes(grafo_bipartito, n):
-    pagerank={}
+def separar_nodos(grafo_bipartito):
+    canciones=[]
+    usuarios=[]
     for v in grafo_bipartito.obtener_vertices():
-        pagerank[v]=1.0
-    centralidades = aplicar_pagerank(grafo_bipartito,pagerank)
+        if " " not in v:
+            usuarios.append[v]
+        else:
+            canciones.append[v]
 
-    canciones_ordenadas = sorted(centralidades.items(), key=lambda x: x[1], reverse=True)
+    return usuarios,canciones
 
-    canciones_mas_importantes = []
-    for i in range(min(n,len(canciones_ordenadas))):
-        cancion = canciones_ordenadas[i][0]
-        canciones_mas_importantes.append(cancion)
-    salida = "; ".join(canciones_mas_importantes)
+
+def comando_mas_importantes(grafo_bipartito, C):
+    # Obtener el PageRank
+    pagerank = pr.pagerank_general(grafo_bipartito)
+    pagerank_canciones = pr.separar_pr_por_canciones(pagerank)
+
+    # Crear una lista de tuplas (puntaje, canción)
+    canciones = [(puntaje, cancion) for cancion, puntaje in pagerank_canciones.items()]
+
+    # Usar heapq.nlargest para obtener las C canciones con los mayores puntajes
+    canciones_mas_importantes = heapq.nlargest(C, canciones, key=lambda x: x[0])
+
+    # Formatear la salida como una cadena separada por punto y coma
+    salida = "; ".join(cancion for _, cancion in canciones_mas_importantes)
     imprimir(salida)
 
+    return canciones_mas_importantes
 
 
-
-def comando_recomendacion(grafo_bipartito, tipo, n, canciones):
-    if tipo == "canciones":
-        canciones_recomendadas = recomendar_canciones(grafo_bipartito, canciones, n)
-        salida = "; ".join(canciones_recomendadas)
-        imprimir(salida)
+def comando_recomendacion(grafo_bipartito, tipo, n, canciones_favoritas):
+    """
+    Recomendación personalizada de canciones o usuarios.
     
-    elif tipo == "usuarios":
-        usuarios_recomendados = recomendar_usuarios(grafo_bipartito, canciones, n)
-        salida = "; ".join(usuarios_recomendados)
-        imprimir(salida)
-
-def recomendar_canciones(grafo_bipartito, canciones_conocidas, n):
-    pagerank = {}
-    for cancion in canciones_conocidas:
-        pagerank[cancion] = 1.0  
+    tipo: 'canciones' o 'usuarios' (especifica si se recomienda canciones o usuarios)
+    n: número de recomendaciones
+    canciones_favoritas: canciones favoritas para personalizar la recomendación
+    """
+    # Obtener el Personalized PageRank
+    pagerank = pr.pagerank_recomendacion(grafo_bipartito, canciones_favoritas)
     
-    pagerank = aplicar_pagerank(grafo_bipartito, pagerank)
+    if tipo == 'canciones':
+        # Filtrar solo canciones y que no esten en las favoritas
+        recomendaciones = [(cancion, puntaje) for cancion, puntaje in pagerank.items() if ' - ' in cancion and cancion not in canciones_favoritas]
+    else:  # tipo == 'usuarios'
+        # Filtrar usuarios
+        recomendaciones = [(usuario, puntaje) for usuario, puntaje in pagerank.items() if ' - ' not in usuario]
     
-
-    canciones_ordenadas = sorted(pagerank.items(), key=lambda x: x[1], reverse=True)
-
-    canciones_recomendadas = []
-    for cancion, _ in canciones_ordenadas:
-        if cancion not in canciones_conocidas:
-            canciones_recomendadas.append(cancion)
-
-    return canciones_recomendadas[:n]
-
-def recomendar_usuarios(grafo_bipartito, canciones_conocidas, n):
-    pagerank = {}
-    for cancion in canciones_conocidas:
-        for usuario in grafo_bipartito.obtener_adyacentes(cancion):
-            if usuario not in pagerank:
-                pagerank[usuario] = 1.0  
-
-    pagerank = aplicar_pagerank(grafo_bipartito, pagerank)
-    usuarios_ordenados = sorted(pagerank.items(), key=lambda x: x[1], reverse=True)
-    usuarios_recomendados = []
-    for usuario, _ in usuarios_ordenados[:n]:
-        usuarios_recomendados.append(usuario)
-    return usuarios_recomendados
-
-
-def aplicar_pagerank(grafo_bipartito,pagerank_inicial,max_iter=10):
-    for _ in range(max_iter): 
-        nuevo_pagerank = {}
-        for vertice in grafo_bipartito.obtener_vertices():
-            suma = 0.0
-            for vecino in grafo_bipartito.adyacentes(vertice):
-                suma += pagerank_inicial.get(vecino, 0) / len(grafo_bipartito.adyacentes(vecino))
-            nuevo_pagerank[vertice] = suma
-        
-        pagerank_inicial = nuevo_pagerank
+    # Ordenar las recomendaciones por puntaje
+    recomendaciones_ordenadas = sorted(recomendaciones, key=lambda x: x[1], reverse=True)
     
-    return pagerank_inicial
-
-
-
+    # Formatear la salida
+    salida = "; ".join([recomendacion[0] for recomendacion in recomendaciones_ordenadas[:n]])
+    imprimir(salida)
 
 
 
@@ -121,7 +98,6 @@ def aplicar_pagerank(grafo_bipartito,pagerank_inicial,max_iter=10):
 def completar_grafo_canciones_repetidas(usuarios_canciones, grafo_canciones_repetidas):
     for usuario, canciones in usuarios_canciones.items():
         canciones = list(canciones)
-
         for cancion in canciones:
             if not grafo_canciones_repetidas.vertice_existe(cancion):
                 grafo_canciones_repetidas.agregar_vertice(cancion)
@@ -129,7 +105,6 @@ def completar_grafo_canciones_repetidas(usuarios_canciones, grafo_canciones_repe
             for j in range(i + 1, len(canciones)):
                 cancion1 = canciones[i]
                 cancion2 = canciones[j]
-
                 if not grafo_canciones_repetidas.estan_unidos(cancion1, cancion2):
                     grafo_canciones_repetidas.agregar_arista(cancion1, cancion2, 1)
                 else:
@@ -139,13 +114,9 @@ def completar_grafo_canciones_repetidas(usuarios_canciones, grafo_canciones_repe
 
 def comando_ciclo(grafo, n, cancion):
     ciclo = b.buscar_ciclo(grafo, n, cancion)
-    
+
     if ciclo is None:
         print(f"No se encontró un ciclo de longitud {n} desde {cancion}.")
-    else:
-        ciclo_str = " --> ".join(ciclo) + f" --> {ciclo[0]}"
-        imprimir(ciclo_str)
-
 
 def comando_rango(grafo, n, cancion):
     cantidad = b.buscar_rango(grafo, cancion, n)
