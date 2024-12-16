@@ -1,8 +1,6 @@
 import random
 pagerank_global = None
-
 def pagerank_general(grafo_bipartito, max_iter=10, damping=0.85):
-
     global pagerank_global
     
     # Si ya existe un cálculo previo, reutilízalo

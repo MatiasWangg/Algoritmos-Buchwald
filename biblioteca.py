@@ -119,6 +119,7 @@ def ordenar_vertices(distancias):
 def buscar_rango(grafo, n, cancion):
     if n < 0:
         return 0
+    
     visitados = set()
     distancias = {}
     cantidad = 0
@@ -126,15 +127,22 @@ def buscar_rango(grafo, n, cancion):
     distancias[cancion] = 0
     cola = deque()
     cola.append(cancion)
+
     while cola:
         v = cola.popleft()
+        
+        # Se procesan los vértices adyacentes
         for w in grafo.adyacentes(v):  
             if w not in visitados:
                 visitados.add(w)
                 distancias[w] = distancias[v] + 1
-                if distancias[w] <= n:
+
+                # Solo agregamos a la cola si estamos dentro del rango
+                if distancias[w] < n:
                     cola.append(w)
-                    cantidad += 1  
+                elif distancias[w] == n:
+                    cantidad += 1  # Contamos solo los que están exactamente a n saltos
+
     return cantidad
 
     
