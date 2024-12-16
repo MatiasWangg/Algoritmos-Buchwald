@@ -47,13 +47,18 @@ def comando_recomendacion(grafo_bipartito, tipo, n, canciones_favoritas):
 
 
 def completar_grafo_canciones_repetidas(usuarios_canciones):
-    grafo_canciones_repetidas=Grafo()
+    grafo_canciones_repetidas = Grafo()
+    
+    # Recorrer todos los usuarios y sus canciones
     for usuario, canciones in usuarios_canciones.items():
         canciones = list(canciones)
-
+        
+        # Agregar las canciones como vértices si no existen
         for cancion in canciones:
             if not grafo_canciones_repetidas.vertice_existe(cancion):
                 grafo_canciones_repetidas.agregar_vertice(cancion)
+        
+        # Agregar aristas entre las canciones del mismo usuario
         for i in range(len(canciones)):
             for j in range(i + 1, len(canciones)):
                 cancion1 = canciones[i]
@@ -64,13 +69,15 @@ def completar_grafo_canciones_repetidas(usuarios_canciones):
                 else:
                     peso_actual = grafo_canciones_repetidas.peso_arista(cancion1, cancion2)
                     grafo_canciones_repetidas.agregar_arista(cancion1, cancion2, peso_actual + 1)
+    
     return grafo_canciones_repetidas
+
 
 def comando_ciclo(grafo, n, cancion):
     ciclo = b.buscar_ciclo(grafo, n, cancion)
     
     if ciclo is None:
-        return(f"No se encontró un ciclo de longitud {n} desde {cancion}.")
+        return("No se encontro recorrido")
     else:
         ciclo_str = " --> ".join(ciclo)
         return ciclo_str
